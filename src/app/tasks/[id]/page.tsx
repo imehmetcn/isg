@@ -1,0 +1,301 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+
+interface Task {
+  id: string
+  title: string
+  description: string
+  type: string
+  priority: string
+  status: string
+  dueDate: string
+  assignedTo: string
+  createdBy: string
+  createdAt: string
+  updatedAt: string
+}
+
+export default function TaskDetailPage({
+  params,
+}: {
+  params: { id: string }
+}) {
+  const router = useRouter()
+  const [task, setTask] = useState<Task | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [updating, setUpdating] = useState(false)
+
+  useEffect(() => {
+    fetchTask()
+  }, [params.id])
+
+  async function fetchTask() {
+    try {
+      const response = await fetch(`/api/tasks/${params.id}`)
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Görev detayları yüklenemedi')
+      }
+
+      setTask(data)
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Bir hata oluştu')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function updateStatus(newStatus: string) {
+    if (!task) return
+
+    setUpdating(true)
+    try {
+      const response = await fetch(`/api/tasks/${params.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...task,
+          status: newStatus,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Durum güncellenemedi')
+      }
+
+      setTask(data)
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Bir hata oluştu')
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  function getTaskTypeText(type: string): string {
+    switch (type) {
+      case 'INSPECTION':
+        return 'Denetim'
+      case 'MAINTENANCE':
+        return 'Bakım'
+      case 'TRAINING':
+        return 'Eğitim'
+      case 'DOCUMENTATION':
+        return 'Dokümantasyon'
+      case 'IMPROVEMENT':
+        return 'İyileştirme'
+      default:
+        return 'Diğer'
+    }
+  }
+
+  function getPriorityColor(priority: string): string {
+    switch (priority) {
+      case 'LOW':
+        return 'bg-blue-100 text-blue-800'
+      case 'MEDIUM':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'HIGH':
+        return 'bg-orange-100 text-orange-800'
+      case 'CRITICAL':
+        return 'bg-red-100 text-red-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  function getPriorityText(priority: string): string {
+    switch (priority) {
+      case 'LOW':
+        return 'Düşük'
+      case 'MEDIUM':
+        return 'Orta'
+      case 'HIGH':
+        return 'Yüksek'
+      case 'CRITICAL':
+        return 'Kritik'
+      default:
+        return 'Bilinmiyor'
+    }
+  }
+
+  function getStatusColor(status: string): string {
+    switch (status) {
+      case 'TODO':
+        return 'bg-gray-100 text-gray-800'
+      case 'IN_PROGRESS':
+        return 'bg-blue-100 text-blue-800'
+      case 'REVIEW':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'COMPLETED':
+        return 'bg-green-100 text-green-800'
+      case 'CANCELLED':
+        return 'bg-red-100 text-red-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  function getStatusText(status: string): string {
+    switch (status) {
+      case 'TODO':
+        return 'Yapılacak'
+      case 'IN_PROGRESS':
+        return 'Devam Ediyor'
+      case 'REVIEW':
+        return 'İncelemede'
+      case 'COMPLETED':
+        return 'Tamamlandı'
+      case 'CANCELLED':
+        return 'İptal Edildi'
+      default:
+        return 'Bilinmiyor'
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      </div>
+    )
+  }
+
+  if (!task) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center">
+          <p className="text-gray-500">Görev bulunamadı.</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mb-6 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-900">{task.title}</h1>
+        <Link href="/tasks" className="text-primary-600 hover:text-primary-700">
+          ← Listeye Dön
+        </Link>
+      </div>
+
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div className="px-4 py-5 sm:px-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="text-lg leading-6 font-medium text-gray-900">
+                Görev Detayları
+              </h3>
+              <p className="mt-1 max-w-2xl text-sm text-gray-500">
+                Oluşturan: {task.createdBy}
+              </p>
+            </div>
+            <div>
+              <span
+                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                  task.status
+                )}`}
+              >
+                {getStatusText(task.status)}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="border-t border-gray-200">
+          <dl>
+            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt className="text-sm font-medium text-gray-500">Görev Türü</dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                {getTaskTypeText(task.type)}
+              </dd>
+            </div>
+            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt className="text-sm font-medium text-gray-500">Öncelik</dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(
+                    task.priority
+                  )}`}
+                >
+                  {getPriorityText(task.priority)}
+                </span>
+              </dd>
+            </div>
+            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt className="text-sm font-medium text-gray-500">Açıklama</dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                {task.description}
+              </dd>
+            </div>
+            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt className="text-sm font-medium text-gray-500">Atanan Kişi</dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                {task.assignedTo}
+              </dd>
+            </div>
+            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt className="text-sm font-medium text-gray-500">Son Tarih</dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                {new Date(task.dueDate).toLocaleDateString('tr-TR')}
+              </dd>
+            </div>
+            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt className="text-sm font-medium text-gray-500">Durum Güncelle</dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => updateStatus('IN_PROGRESS')}
+                    disabled={updating || task.status === 'IN_PROGRESS'}
+                    className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    Başlat
+                  </button>
+                  <button
+                    onClick={() => updateStatus('REVIEW')}
+                    disabled={updating || task.status === 'REVIEW'}
+                    className="px-3 py-1 bg-yellow-600 text-white rounded-md text-sm hover:bg-yellow-700 disabled:opacity-50"
+                  >
+                    İncelemeye Al
+                  </button>
+                  <button
+                    onClick={() => updateStatus('COMPLETED')}
+                    disabled={updating || task.status === 'COMPLETED'}
+                    className="px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 disabled:opacity-50"
+                  >
+                    Tamamla
+                  </button>
+                  <button
+                    onClick={() => updateStatus('CANCELLED')}
+                    disabled={updating || task.status === 'CANCELLED'}
+                    className="px-3 py-1 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 disabled:opacity-50"
+                  >
+                    İptal Et
+                  </button>
+                </div>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  )
+} 

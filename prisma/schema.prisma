@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      String   // "ADMIN", "MANAGER", "EMPLOYEE"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RiskAssessment {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  location    String
+  severity    Int
+  likelihood  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Incident {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  location    String
+  date        DateTime
+  severity    String   // "LOW", "MEDIUM", "HIGH", "CRITICAL"
+  status      String   // "PENDING", "IN_PROGRESS", "COMPLETED", "CANCELLED"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Training {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  status      String   @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+  startDate   DateTime
+  endDate     DateTime
+  instructor  String   @default("unassigned")
+  attendees   String   @default("[]") // JSON string of attendees
+  createdBy   String   @default("system")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Audit {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  status      String   @default("PLANNED") // PLANNED, IN_PROGRESS, COMPLETED, CANCELLED
+  date        DateTime
+  auditor     String   @default("unassigned")
+  department  String   @default("general")
+  findings    String?
+  createdBy   String   @default("system")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Equipment {
+  id                  String   @id @default(cuid())
+  name                String
+  description         String?
+  status             String   @default("ACTIVE") // ACTIVE, MAINTENANCE, REPAIR, INACTIVE
+  serialNumber       String?
+  purchaseDate       DateTime?
+  lastMaintenanceDate DateTime?
+  nextMaintenanceDate DateTime?
+  department         String   @default("general")
+  createdBy          String   @default("system")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  title       String
+  category    String
+  description String
+  fileUrl     String
+  version     String
+  status      String   // "DRAFT", "PUBLISHED", "ARCHIVED"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Personnel {
+  id                  String   @id @default(cuid())
+  employeeId          String   @unique
+  name               String
+  position           String
+  department         String
+  email              String   @unique
+  phone              String
+  safetyTrainingStatus String
+  lastTrainingDate    DateTime
+  nextTrainingDate    DateTime
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Report {
+  id          String    @id @default(cuid())
+  title       String
+  type        String    // "INCIDENT", "TRAINING", "RISK", "AUDIT", "EQUIPMENT", "PERSONNEL"
+  period      String
+  status      String    // "GENERATING", "COMPLETED", "FAILED"
+  parameters  String    // JSON string
+  fileUrl     String?
+  generatedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  status      String   @default("TODO") // TODO, IN_PROGRESS, REVIEW, COMPLETED, CANCELLED
+  priority    String   @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  dueDate     DateTime
+  assignedTo  String   @default("unassigned")
+  createdBy   String   @default("system")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  title       String
+  message     String
+  type        String   // INFO, WARNING, DANGER, SUCCESS
+  category    String   // TASK, TRAINING, AUDIT, EQUIPMENT, INCIDENT
+  isRead      Boolean  @default(false)
+  userId      String
+  link        String?  // İlgili sayfaya yönlendirme linki
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+} 
