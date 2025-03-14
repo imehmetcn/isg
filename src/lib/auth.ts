@@ -25,7 +25,7 @@ declare module "next-auth/jwt" {
   }
 }
 
-export const config = {
+export const config: NextAuthOptions = {
   adapter: PrismaAdapter(db),
   session: {
     strategy: "jwt",
@@ -92,4 +92,4 @@ export const config = {
       return session
     }
   }
-} satisfies NextAuthOptions 
+} 
