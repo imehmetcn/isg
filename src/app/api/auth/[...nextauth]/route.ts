@@ -1,12 +1,8 @@
-import { type NextRequest } from "next/server"
 import NextAuth, { type DefaultSession, type AuthOptions } from "next-auth"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { compare } from "bcryptjs"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { db } from "@/lib/db"
-
-export const dynamic = "force-dynamic"
-export const runtime = "nodejs"
 
 declare module "next-auth" {
   interface Session {
@@ -100,4 +96,10 @@ const authOptions: AuthOptions = {
 
 const handler = NextAuth(authOptions)
 
-export { handler as GET, handler as POST }
+export async function GET(request: Request) {
+  return handler(request)
+}
+
+export async function POST(request: Request) {
+  return handler(request)
+}
