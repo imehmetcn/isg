@@ -8,7 +8,7 @@ declare module "next-auth" {
   interface User {
     id: string
     email: string
-    name: string
+    name: string | null
     role: string
   }
   
@@ -42,7 +42,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Şifre", type: "password" }
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) {
           return null
         }

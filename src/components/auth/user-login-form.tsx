@@ -1,5 +1,7 @@
+'use client'
+
 import * as React from "react"
-import { useForm } from "react-hook-form"
+import { type SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { signIn } from "next-auth/react"
@@ -21,7 +23,11 @@ export function UserLoginForm() {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [error, setError] = React.useState<string>("")
 
-  const form = useForm<FormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
@@ -29,7 +35,7 @@ export function UserLoginForm() {
     },
   })
 
-  async function onSubmit(data: FormData) {
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
     setIsLoading(true)
     setError("")
 
@@ -56,7 +62,7 @@ export function UserLoginForm() {
 
   return (
     <div className="grid gap-6">
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-4">
           <div className="grid gap-2">
             <label htmlFor="email">Email</label>
@@ -65,12 +71,12 @@ export function UserLoginForm() {
               type="email"
               disabled={isLoading}
               placeholder="name@example.com"
-              {...form.register("email")}
+              {...register("email")}
               className="w-full rounded-md border p-2"
             />
-            {form.formState.errors.email && (
+            {errors.email && (
               <p className="text-sm text-red-500">
-                {form.formState.errors.email.message}
+                {errors.email.message}
               </p>
             )}
           </div>
@@ -80,12 +86,12 @@ export function UserLoginForm() {
               id="password"
               type="password"
               disabled={isLoading}
-              {...form.register("password")}
+              {...register("password")}
               className="w-full rounded-md border p-2"
             />
-            {form.formState.errors.password && (
+            {errors.password && (
               <p className="text-sm text-red-500">
-                {form.formState.errors.password.message}
+                {errors.password.message}
               </p>
             )}
           </div>
