@@ -1,9 +1,9 @@
 'use client'
 
-import { ArrowRight, BarChart2, FileText, Shield, Users, CheckCircle2, Star } from "lucide-react"
+import { ArrowRight, BarChart2, FileText, Shield, Users } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import Image from "next/image"
+import { AuroraBackground } from "@/components/ui/aurora-background"
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -22,6 +22,8 @@ const staggerContainer = {
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
+      <AuroraBackground />
+      
       {/* Navigation */}
       <motion.nav 
         initial={{ y: -100 }}
@@ -48,62 +50,7 @@ export default function Home() {
       </motion.nav>
 
       {/* Hero Section */}
-      <section className="min-h-screen pt-20 bg-gradient-to-b from-blue-50 via-white to-white relative overflow-hidden">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.1 }}
-            transition={{ duration: 1 }}
-            className="absolute inset-0 bg-[url('/pattern.svg')]"
-          />
-          {/* Floating Safety Icons */}
-          <motion.div
-            animate={{
-              y: [0, -20, 0],
-              rotate: [0, 5, 0]
-            }}
-            transition={{
-              duration: 5,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="absolute top-20 left-[10%] text-blue-500 opacity-20"
-          >
-            <Shield size={60} />
-          </motion.div>
-          <motion.div
-            animate={{
-              y: [0, 20, 0],
-              rotate: [0, -5, 0]
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 1
-            }}
-            className="absolute top-40 right-[15%] text-red-500 opacity-20"
-          >
-            <Users size={50} />
-          </motion.div>
-          <motion.div
-            animate={{
-              y: [0, 15, 0],
-              rotate: [0, 3, 0]
-            }}
-            transition={{
-              duration: 6,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 0.5
-            }}
-            className="absolute bottom-40 left-[20%] text-green-500 opacity-20"
-          >
-            <FileText size={40} />
-          </motion.div>
-        </div>
-
+      <section className="min-h-screen pt-20 relative overflow-hidden">
         {/* Main Content */}
         <div className="container mx-auto px-4 pt-20">
           <div className="max-w-4xl mx-auto text-center relative">
@@ -111,7 +58,7 @@ export default function Home() {
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5 }}
-              className="inline-block mb-6 bg-blue-100 text-blue-600 px-4 py-2 rounded-full text-sm font-semibold"
+              className="inline-block mb-6 bg-white/80 backdrop-blur-sm text-blue-600 px-4 py-2 rounded-full text-sm font-semibold"
             >
               Türkiye'nin En Kapsamlı İSG Yazılımı
             </motion.div>
@@ -159,40 +106,17 @@ export default function Home() {
               </Link>
               <Link 
                 href="/contact" 
-                className="bg-white text-blue-600 border-2 border-blue-600 px-8 py-4 rounded-lg hover:bg-blue-50 transition shadow-lg shadow-blue-500/10"
+                className="bg-white/80 backdrop-blur-sm text-blue-600 border-2 border-blue-600 px-8 py-4 rounded-lg hover:bg-blue-50 transition shadow-lg shadow-blue-500/10"
               >
                 Bizimle İletişime Geçin
               </Link>
-            </motion.div>
-
-            {/* Stats Preview */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-              className="grid grid-cols-3 gap-8 mt-20 bg-white p-8 rounded-2xl shadow-xl shadow-blue-500/5 backdrop-blur-sm"
-            >
-              {[
-                { number: "1000+", label: "Aktif Kullanıcı" },
-                { number: "5000+", label: "Risk Değerlendirmesi" },
-                { number: "98%", label: "Müşteri Memnuniyeti" }
-              ].map((stat, index) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ y: -5 }}
-                  className="text-center"
-                >
-                  <div className="text-3xl font-bold text-blue-600 mb-2">{stat.number}</div>
-                  <div className="text-gray-600">{stat.label}</div>
-                </motion.div>
-              ))}
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* Features */}
-      <section className="py-20">
+      <section className="py-20 bg-white/80 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
@@ -260,176 +184,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Benefits */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl font-bold text-center text-gray-900 mb-12"
-          >
-            Neden Bizi Tercih Etmelisiniz?
-          </motion.h2>
-          <motion.div 
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            className="grid md:grid-cols-3 gap-8"
-          >
-            {[
-              {
-                icon: <CheckCircle2 className="text-green-600" />,
-                title: "Kolay Kullanım",
-                description: "Sezgisel arayüz ile tüm işlemlerinizi hızlıca tamamlayın."
-              },
-              {
-                icon: <Shield className="text-blue-600" />,
-                title: "Güvenli Altyapı",
-                description: "Verileriniz en üst düzey güvenlik önlemleriyle korunur."
-              },
-              {
-                icon: <Star className="text-yellow-500" />,
-                title: "7/24 Destek",
-                description: "Teknik ekibimiz her zaman yanınızda."
-              }
-            ].map((benefit, index) => (
-              <motion.div
-                key={index}
-                variants={fadeInUp}
-                className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition text-center"
-              >
-                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                  {benefit.icon}
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">{benefit.title}</h3>
-                <p className="text-gray-600">{benefit.description}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="py-20 bg-blue-600 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/pattern.svg')] opacity-10"></div>
-        <div className="container mx-auto px-4 relative">
-          <motion.div 
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            className="grid md:grid-cols-3 gap-8 text-center"
-          >
-            {[
-              { number: "1000+", label: "Aktif Kullanıcı" },
-              { number: "5000+", label: "Tamamlanan Risk Değerlendirmesi" },
-              { number: "98%", label: "Müşteri Memnuniyeti" }
-            ].map((stat, index) => (
-              <motion.div
-                key={index}
-                variants={fadeInUp}
-                className="bg-white/10 backdrop-blur-sm rounded-lg p-6"
-              >
-                <div className="text-4xl font-bold mb-2">{stat.number}</div>
-                <div className="text-blue-100">{stat.label}</div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl font-bold text-center text-gray-900 mb-12"
-          >
-            Müşterilerimiz Ne Diyor?
-          </motion.h2>
-          <motion.div 
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            className="grid md:grid-cols-3 gap-8"
-          >
-            {[
-              {
-                name: "Ahmet Yılmaz",
-                role: "İSG Uzmanı",
-                company: "ABC İnşaat",
-                content: "İSG süreçlerimizi çok daha verimli yönetiyoruz. Kullanımı kolay ve kapsamlı bir sistem."
-              },
-              {
-                name: "Ayşe Demir",
-                role: "İK Müdürü",
-                company: "XYZ Üretim",
-                content: "Çalışan eğitimlerini takip etmek artık çok daha kolay. Raporlama özellikleri muhteşem."
-              },
-              {
-                name: "Mehmet Kaya",
-                role: "İş Güvenliği Müdürü",
-                company: "DEF Holding",
-                content: "Risk değerlendirme süreçlerimiz artık çok daha sistematik. Kesinlikle tavsiye ediyorum."
-              }
-            ].map((testimonial, index) => (
-              <motion.div
-                key={index}
-                variants={fadeInUp}
-                className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition"
-              >
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-semibold">{testimonial.name[0]}</span>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                    <div className="text-sm text-gray-600">{testimonial.role}, {testimonial.company}</div>
-                  </div>
-                </div>
-                <p className="text-gray-600 italic">"{testimonial.content}"</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-        <div className="container mx-auto px-4">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="max-w-3xl mx-auto text-center"
-          >
-            <h2 className="text-3xl font-bold mb-6">
-              Hemen Ücretsiz Denemeye Başlayın
-            </h2>
-            <p className="text-xl text-blue-100 mb-8">
-              14 gün boyunca tüm özellikleri ücretsiz kullanın, risksiz deneyin.
-            </p>
-            <Link 
-              href="/register" 
-              className="bg-white text-blue-600 px-8 py-4 rounded-lg hover:bg-blue-50 transition inline-flex items-center gap-2 group"
-            >
-              Hemen Başla
-              <ArrowRight size={20} className="group-hover:translate-x-1 transition" />
-            </Link>
-          </motion.div>
-        </div>
-      </section>
-
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-12">
+      <footer className="bg-gray-900/90 backdrop-blur-sm text-gray-400 py-12">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
