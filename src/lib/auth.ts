@@ -1,22 +1,21 @@
+import NextAuth from "next-auth"
+import { type DefaultSession, type NextAuthOptions } from "next-auth"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { compare } from "bcryptjs"
-import { type NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { db } from "./db"
 
 declare module "next-auth" {
-  interface User {
-    id: string
-    email: string
-    name: string | null
-    role: string
-  }
-  
-  interface Session {
-    user: User & {
+  interface Session extends DefaultSession {
+    user: {
       id: string
       role: string
-    }
+    } & DefaultSession["user"]
+  }
+
+  interface User {
+    id: string
+    role: string
   }
 }
 
@@ -30,7 +29,9 @@ declare module "next-auth/jwt" {
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db),
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
   },
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
@@ -79,23 +80,17 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        return {
-          ...token,
-          id: user.id,
-          role: user.role,
-        }
+        token.id = user.id
+        token.role = user.role
       }
       return token
     },
     async session({ session, token }) {
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          id: token.id,
-          role: token.role,
-        }
+      if (session.user) {
+        session.user.id = token.id as string
+        session.user.role = token.role as string
       }
+      return session
     }
   }
 } 
