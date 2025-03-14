@@ -1,3 +1,5 @@
+'use client'
+
 import { ArrowRight, BarChart2, FileText, Shield, Users, CheckCircle2, Star } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
