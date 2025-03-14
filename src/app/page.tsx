@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, BarChart2, FileText, Shield, Users, CheckCircle, AlertTriangle, GraduationCap, ClipboardCheck, Siren } from "lucide-react"
+import { ArrowRight, BarChart2, FileText, Shield, Users, CheckCircle, AlertTriangle, GraduationCap, ClipboardCheck, Siren, Star, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import { useRef } from "react"
@@ -49,22 +49,22 @@ export default function Home() {
         exit={{ opacity: 0 }}
         className="flex flex-col min-h-screen bg-gradient-to-b from-blue-50 via-white to-white"
       >
-        {/* Navigation */}
+        {/* Navigation - Updated with glass effect */}
         <motion.nav 
           initial={{ y: -100 }}
           animate={{ y: 0 }}
           transition={{ duration: 0.5 }}
-          className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b"
+          className="fixed top-0 w-full bg-white/70 backdrop-blur-xl z-50 border-b border-gray-200/20 shadow-sm"
         >
-          <div className="container mx-auto px-4 py-3">
+          <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <motion.div 
                 whileHover={{ scale: 1.05 }}
-                className="text-xl font-bold text-blue-600 cursor-pointer"
+                className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 text-transparent bg-clip-text cursor-pointer"
               >
                 İSG Yönetim
               </motion.div>
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-8">
                 <motion.div whileHover={{ y: -2 }}>
                   <Link href="/about" className="text-gray-600 hover:text-blue-600 transition">Hakkında</Link>
                 </motion.div>
@@ -77,7 +77,7 @@ export default function Home() {
                 >
                   <Link 
                     href="/register" 
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center gap-2 group"
+                    className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2.5 rounded-lg hover:from-blue-700 hover:to-blue-800 transition flex items-center gap-2 group font-medium"
                   >
                     Ücretsiz Dene
                     <ArrowRight size={16} className="group-hover:translate-x-1 transition" />
@@ -88,47 +88,50 @@ export default function Home() {
           </div>
         </motion.nav>
 
-        {/* Hero Section */}
+        {/* Hero Section - Updated with modern design */}
         <motion.section 
           ref={heroRef}
           style={{ opacity, scale, y: heroY }}
-          className="min-h-screen pt-20 relative overflow-hidden"
+          className="min-h-screen pt-24 relative overflow-hidden"
         >
-          {/* Floating Shapes */}
-          <motion.div 
-            animate={{ 
-              y: [0, -20, 0],
-              rotate: [0, 10, 0]
-            }}
-            transition={{ 
-              duration: 5,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="absolute top-40 left-20 w-20 h-20 bg-blue-500/10 rounded-full blur-xl"
-          />
-          <motion.div 
-            animate={{ 
-              y: [0, 20, 0],
-              rotate: [0, -10, 0]
-            }}
-            transition={{ 
-              duration: 7,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 1
-            }}
-            className="absolute bottom-40 right-20 w-32 h-32 bg-blue-600/10 rounded-full blur-xl"
-          />
+          {/* Background Elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-[120%] bg-gradient-to-b from-blue-50/50 to-transparent rounded-[100%] blur-3xl opacity-70" />
+            <motion.div 
+              animate={{ 
+                y: [0, -20, 0],
+                rotate: [0, 10, 0]
+              }}
+              transition={{ 
+                duration: 5,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="absolute top-40 left-20 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-blue-600/20 rounded-full blur-2xl"
+            />
+            <motion.div 
+              animate={{ 
+                y: [0, 20, 0],
+                rotate: [0, -10, 0]
+              }}
+              transition={{ 
+                duration: 7,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 1
+              }}
+              className="absolute bottom-40 right-20 w-48 h-48 bg-gradient-to-tr from-blue-500/20 to-blue-700/20 rounded-full blur-2xl"
+            />
+          </div>
           
           {/* Main Content */}
-          <div className="container mx-auto px-4 pt-20">
-            <div className="max-w-4xl mx-auto text-center relative">
+          <div className="container mx-auto px-4 pt-20 relative">
+            <div className="max-w-5xl mx-auto text-center">
               <motion.div
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.5 }}
-                className="inline-block mb-6 bg-white/80 backdrop-blur-sm text-blue-600 px-4 py-2 rounded-full text-sm font-semibold"
+                className="inline-block mb-6 bg-gradient-to-r from-blue-600/10 to-blue-700/10 text-blue-700 px-6 py-2 rounded-full text-sm font-semibold backdrop-blur-sm border border-blue-100"
               >
                 Türkiye'nin En Kapsamlı İSG Yazılımı
               </motion.div>
@@ -137,16 +140,16 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-6xl font-bold text-gray-900 mb-8 leading-tight"
+                className="text-7xl font-bold mb-8 leading-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-transparent bg-clip-text"
               >
                 İş Güvenliği Yönetimini{" "}
                 <span className="relative">
-                  <span className="relative z-10 text-blue-600">Dijitalleştirin</span>
+                  <span className="relative z-10 bg-gradient-to-r from-blue-600 to-blue-700 text-transparent bg-clip-text">Dijitalleştirin</span>
                   <motion.span
                     initial={{ width: "0%" }}
                     animate={{ width: "100%" }}
                     transition={{ duration: 0.8, delay: 0.5 }}
-                    className="absolute bottom-2 left-0 h-3 bg-blue-100 z-0"
+                    className="absolute bottom-2 left-0 h-3 bg-gradient-to-r from-blue-100 to-blue-50 z-0 rounded-full"
                   />
                 </span>
               </motion.h1>
@@ -155,7 +158,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="text-xl text-gray-600 mb-12 leading-relaxed"
+                className="text-xl text-gray-600 mb-12 leading-relaxed max-w-3xl mx-auto"
               >
                 Tüm İSG süreçlerinizi tek platformda yönetin. Risk değerlendirmeden eğitim takibine,
                 denetimlerden raporlamalara kadar her şey kontrolünüz altında.
@@ -169,38 +172,76 @@ export default function Home() {
               >
                 <Link 
                   href="/demo" 
-                  className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition flex items-center gap-3 group shadow-lg shadow-blue-500/20"
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-blue-800 transition flex items-center gap-3 group font-medium shadow-lg shadow-blue-500/20"
                 >
                   <span>Demo İncele</span>
                   <ArrowRight size={20} className="group-hover:translate-x-1 transition" />
                 </Link>
                 <Link 
                   href="/contact" 
-                  className="bg-white/80 backdrop-blur-sm text-blue-600 border-2 border-blue-600 px-8 py-4 rounded-lg hover:bg-blue-50 transition shadow-lg shadow-blue-500/10"
+                  className="bg-white text-gray-900 border-2 border-gray-200 px-8 py-4 rounded-xl hover:border-blue-600 hover:text-blue-600 transition font-medium shadow-lg shadow-gray-200/20"
                 >
                   Bizimle İletişime Geçin
                 </Link>
+              </motion.div>
+
+              {/* Statistics */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.8 }}
+                className="grid md:grid-cols-4 gap-8 mt-24 max-w-4xl mx-auto"
+              >
+                {[
+                  { number: "1000+", label: "Aktif Kullanıcı" },
+                  { number: "5000+", label: "Tamamlanan Risk Değerlendirmesi" },
+                  { number: "10000+", label: "Düzenlenen Eğitim" },
+                  { number: "%98", label: "Müşteri Memnuniyeti" }
+                ].map((stat, index) => (
+                  <motion.div
+                    key={index}
+                    whileHover={{ y: -5 }}
+                    className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 text-center border border-gray-100 shadow-xl shadow-gray-100/20"
+                  >
+                    <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 text-transparent bg-clip-text mb-2">
+                      {stat.number}
+                    </div>
+                    <div className="text-gray-600 text-sm">{stat.label}</div>
+                  </motion.div>
+                ))}
               </motion.div>
             </div>
           </div>
         </motion.section>
 
-        {/* Features */}
+        {/* Features - Keep existing features section but update colors */}
         <motion.section 
           ref={featuresRef}
           style={{ y: featuresY }}
-          className="py-20"
+          className="py-32 bg-gradient-to-b from-white to-gray-50"
         >
           <div className="container mx-auto px-4">
-            <motion.h2 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.5 }}
-              className="text-3xl font-bold text-center text-gray-900 mb-12"
+              viewport={{ once: true }}
+              className="max-w-2xl mx-auto text-center mb-20"
             >
-              Ana Hizmetlerimiz
-            </motion.h2>
+              <motion.h2 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.5 }}
+                className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-800 text-transparent bg-clip-text mb-6"
+              >
+                Ana Hizmetlerimiz
+              </motion.h2>
+              <p className="text-gray-600 text-lg">
+                İş güvenliği süreçlerinizi dijitalleştirmek için ihtiyacınız olan tüm araçlar tek platformda.
+              </p>
+            </motion.div>
+
+            {/* Keep existing features grid but with updated styling */}
             <motion.div 
               variants={staggerContainer}
               initial="initial"
@@ -340,13 +381,15 @@ export default function Home() {
           </div>
         </motion.section>
 
-        {/* Footer */}
-        <footer className="bg-gray-900 text-gray-400 py-12">
+        {/* Footer - Updated with modern design */}
+        <footer className="bg-gray-900 text-gray-400 py-20">
           <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-4 gap-8">
+            <div className="grid md:grid-cols-4 gap-12">
               <div>
-                <div className="text-xl font-bold text-white mb-4">İSG Yönetim</div>
-                <p className="text-sm">
+                <div className="text-2xl font-bold text-white mb-6 bg-gradient-to-r from-blue-500 to-blue-600 text-transparent bg-clip-text">
+                  İSG Yönetim
+                </div>
+                <p className="text-gray-400 leading-relaxed">
                   İş güvenliği süreçlerinizi dijitalleştirin, 
                   verimliliğinizi artırın.
                 </p>
@@ -380,16 +423,16 @@ export default function Home() {
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="border-t border-gray-800 mt-12 pt-8 text-sm text-center"
+              className="border-t border-gray-800 mt-16 pt-8 text-sm text-center"
             >
               © {new Date().getFullYear()} İSG Yönetim. Tüm hakları saklıdır.
             </motion.div>
           </div>
         </footer>
 
-        {/* Scroll Progress Bar */}
+        {/* Scroll Progress Bar - Updated with gradient */}
         <motion.div
-          className="fixed top-0 left-0 right-0 h-1 bg-blue-600 origin-left z-50"
+          className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-blue-700 origin-left z-50"
           style={{ scaleX: scrollYProgress }}
         />
       </motion.div>
