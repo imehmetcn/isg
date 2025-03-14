@@ -48,45 +48,144 @@ export default function Home() {
       </motion.nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 bg-gradient-to-b from-blue-50 to-white overflow-hidden">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
+      <section className="min-h-screen pt-20 bg-gradient-to-b from-blue-50 via-white to-white relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.1 }}
+            transition={{ duration: 1 }}
+            className="absolute inset-0 bg-[url('/pattern.svg')]"
+          />
+          {/* Floating Safety Icons */}
+          <motion.div
+            animate={{
+              y: [0, -20, 0],
+              rotate: [0, 5, 0]
+            }}
+            transition={{
+              duration: 5,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute top-20 left-[10%] text-blue-500 opacity-20"
+          >
+            <Shield size={60} />
+          </motion.div>
+          <motion.div
+            animate={{
+              y: [0, 20, 0],
+              rotate: [0, -5, 0]
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1
+            }}
+            className="absolute top-40 right-[15%] text-red-500 opacity-20"
+          >
+            <Users size={50} />
+          </motion.div>
+          <motion.div
+            animate={{
+              y: [0, 15, 0],
+              rotate: [0, 3, 0]
+            }}
+            transition={{
+              duration: 6,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.5
+            }}
+            className="absolute bottom-40 left-[20%] text-green-500 opacity-20"
+          >
+            <FileText size={40} />
+          </motion.div>
+        </div>
+
+        {/* Main Content */}
+        <div className="container mx-auto px-4 pt-20">
+          <div className="max-w-4xl mx-auto text-center relative">
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="inline-block mb-6 bg-blue-100 text-blue-600 px-4 py-2 rounded-full text-sm font-semibold"
+            >
+              Türkiye'nin En Kapsamlı İSG Yazılımı
+            </motion.div>
+            
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-5xl font-bold text-gray-900 mb-6"
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-6xl font-bold text-gray-900 mb-8 leading-tight"
             >
-              İş Güvenliği Yönetimini <span className="text-blue-600">Kolaylaştırın</span>
+              İş Güvenliği Yönetimini{" "}
+              <span className="relative">
+                <span className="relative z-10 text-blue-600">Dijitalleştirin</span>
+                <motion.span
+                  initial={{ width: "0%" }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 0.8, delay: 0.5 }}
+                  className="absolute bottom-2 left-0 h-3 bg-blue-100 z-0"
+                />
+              </span>
             </motion.h1>
+
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-xl text-gray-600 mb-8"
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="text-xl text-gray-600 mb-12 leading-relaxed"
             >
-              Tüm İSG süreçlerinizi tek bir platformda yönetin. Risk değerlendirmeden eğitim takibine, 
+              Tüm İSG süreçlerinizi tek platformda yönetin. Risk değerlendirmeden eğitim takibine,
               denetimlerden raporlamalara kadar her şey kontrolünüz altında.
             </motion.p>
+
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="flex gap-4 justify-center"
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="flex gap-6 justify-center"
             >
               <Link 
                 href="/demo" 
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition flex items-center gap-2 group"
+                className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition flex items-center gap-3 group shadow-lg shadow-blue-500/20"
               >
-                Demo İncele
+                <span>Demo İncele</span>
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition" />
               </Link>
               <Link 
                 href="/contact" 
-                className="bg-white text-blue-600 border-2 border-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50 transition"
+                className="bg-white text-blue-600 border-2 border-blue-600 px-8 py-4 rounded-lg hover:bg-blue-50 transition shadow-lg shadow-blue-500/10"
               >
                 Bizimle İletişime Geçin
               </Link>
+            </motion.div>
+
+            {/* Stats Preview */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.8 }}
+              className="grid grid-cols-3 gap-8 mt-20 bg-white p-8 rounded-2xl shadow-xl shadow-blue-500/5 backdrop-blur-sm"
+            >
+              {[
+                { number: "1000+", label: "Aktif Kullanıcı" },
+                { number: "5000+", label: "Risk Değerlendirmesi" },
+                { number: "98%", label: "Müşteri Memnuniyeti" }
+              ].map((stat, index) => (
+                <motion.div
+                  key={index}
+                  whileHover={{ y: -5 }}
+                  className="text-center"
+                >
+                  <div className="text-3xl font-bold text-blue-600 mb-2">{stat.number}</div>
+                  <div className="text-gray-600">{stat.label}</div>
+                </motion.div>
+              ))}
             </motion.div>
           </div>
         </div>
@@ -102,47 +201,59 @@ export default function Home() {
             transition={{ duration: 0.5 }}
             className="text-3xl font-bold text-center text-gray-900 mb-12"
           >
-            Neler Sunuyoruz?
+            Ana Hizmetlerimiz
           </motion.h2>
           <motion.div 
             variants={staggerContainer}
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8"
           >
             {[
               {
-                icon: <Shield className="text-blue-600" />,
-                title: "Risk Yönetimi",
-                description: "Kapsamlı risk değerlendirme araçları ile tehlikeleri önceden tespit edin ve önlem alın."
+                icon: <Shield className="text-blue-600 w-8 h-8" />,
+                title: "Risk Değerlendirme",
+                description: "Kapsamlı risk analizi, tehlike belirleme, önleyici tedbirler ve risk skorlama sistemleri ile işyeri güvenliğini en üst seviyeye çıkarın."
               },
               {
-                icon: <Users className="text-blue-600" />,
-                title: "Eğitim Takibi",
-                description: "Çalışan eğitimlerini planlayin, takip edin ve sertifikalarını yönetin."
+                icon: <FileText className="text-blue-600 w-8 h-8" />,
+                title: "Olay Takibi",
+                description: "İş kazaları, ramak kala olayları ve meslek hastalıklarını detaylı raporlama ve analiz araçlarıyla takip edin."
               },
               {
-                icon: <FileText className="text-blue-600" />,
-                title: "Doküman Yönetimi",
-                description: "Tüm İSG dokümanlarınızı düzenli ve kolay erişilebilir şekilde saklayın."
+                icon: <Users className="text-blue-600 w-8 h-8" />,
+                title: "Eğitim Yönetimi",
+                description: "Çalışan eğitimlerini planlayin, online eğitim içerikleri oluşturun ve sertifika süreçlerini otomatik takip edin."
               },
               {
-                icon: <BarChart2 className="text-blue-600" />,
-                title: "Raporlama",
-                description: "Detaylı analizler ve özelleştirilebilir raporlarla verilerinizi değerlendirin."
+                icon: <BarChart2 className="text-blue-600 w-8 h-8" />,
+                title: "Denetim ve Kontrol",
+                description: "Periyodik kontroller, ekipman denetimleri ve saha gözlemlerini mobil uygulama desteğiyle gerçekleştirin."
+              },
+              {
+                icon: <Shield className="text-red-600 w-8 h-8" />,
+                title: "Acil Durum ve Eylem Planı",
+                description: "Acil durum planları oluşturun, tatbikat takibi yapın ve müdahale ekiplerini organize edin."
               }
             ].map((feature, index) => (
               <motion.div
                 key={index}
                 variants={fadeInUp}
-                className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition group"
+                className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition group"
               >
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                <div className="w-16 h-16 bg-blue-50 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition">
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <h3 className="text-2xl font-semibold text-gray-900 mb-4">{feature.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                <Link 
+                  href={`/features/${feature.title.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="mt-6 inline-flex items-center text-blue-600 hover:text-blue-700 transition group"
+                >
+                  Detaylı Bilgi
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition" />
+                </Link>
               </motion.div>
             ))}
           </motion.div>
