@@ -26,11 +26,10 @@ declare module "next-auth/jwt" {
 }
 
 export const config: NextAuthOptions = {
+  debug: process.env.NODE_ENV === "development",
   adapter: PrismaAdapter(db),
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
   },
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
@@ -38,14 +37,14 @@ export const config: NextAuthOptions = {
   },
   providers: [
     CredentialsProvider({
-      name: "Credentials",
+      name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Şifre", type: "password" }
+        password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null
+          throw new Error("Invalid credentials")
         }
 
         const user = await db.user.findUnique({
@@ -55,7 +54,7 @@ export const config: NextAuthOptions = {
         })
 
         if (!user) {
-          return null
+          throw new Error("User not found")
         }
 
         const isPasswordValid = await compare(
@@ -64,7 +63,7 @@ export const config: NextAuthOptions = {
         )
 
         if (!isPasswordValid) {
-          return null
+          throw new Error("Invalid password")
         }
 
         return {
@@ -79,17 +78,23 @@ export const config: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
-        token.role = user.role
+        return {
+          ...token,
+          id: user.id,
+          role: user.role,
+        }
       }
       return token
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string
-        session.user.role = token.role as string
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.id,
+          role: token.role,
+        }
       }
-      return session
     }
   }
 } 
