@@ -1,0 +1,156 @@
+// This is your Prisma schema file
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  role          Role      @default(SAFETY_EXPERT)
+  companies     CompanyUser[]
+}
+
+model Company {
+  id            String    @id @default(cuid())
+  name          String
+  address       String?
+  phone         String?
+  email         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  users         CompanyUser[]
+  riskAssessments RiskAssessment[]
+  incidents     Incident[]
+  trainings     Training[]
+  inspections   Inspection[]
+  emergencyPlans EmergencyPlan[]
+}
+
+model CompanyUser {
+  id        String   @id @default(cuid())
+  userId    String
+  companyId String
+  user      User     @relation(fields: [userId], references: [id])
+  company   Company  @relation(fields: [companyId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, companyId])
+}
+
+model RiskAssessment {
+  id          String   @id @default(cuid())
+  title       String
+  date        DateTime
+  department  String
+  hazards     Hazard[]
+  status      Status   @default(DRAFT)
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Hazard {
+  id                String         @id @default(cuid())
+  description       String
+  riskLevel        RiskLevel
+  controlMeasures   String
+  deadline         DateTime?
+  completed        Boolean         @default(false)
+  riskAssessmentId String
+  riskAssessment   RiskAssessment @relation(fields: [riskAssessmentId], references: [id])
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model Incident {
+  id          String   @id @default(cuid())
+  type        IncidentType
+  date        DateTime
+  location    String
+  description String
+  actions     String?
+  status      Status   @default(OPEN)
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Training {
+  id          String   @id @default(cuid())
+  title       String
+  date        DateTime
+  trainer     String
+  attendees   String[]
+  topics      String[]
+  duration    Int      // minutes
+  status      Status   @default(PLANNED)
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Inspection {
+  id          String   @id @default(cuid())
+  type        String
+  date        DateTime
+  location    String
+  findings    String[]
+  status      Status   @default(OPEN)
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model EmergencyPlan {
+  id          String   @id @default(cuid())
+  title       String
+  date        DateTime
+  procedures  String[]
+  contacts    String[]
+  status      Status   @default(DRAFT)
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum Role {
+  SAFETY_EXPERT
+  ADMIN
+}
+
+enum Status {
+  DRAFT
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  PLANNED
+  CANCELLED
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IncidentType {
+  ACCIDENT
+  NEAR_MISS
+  HAZARD_REPORT
+} 
