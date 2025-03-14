@@ -2,8 +2,7 @@
 
 import { ArrowRight, BarChart2, FileText, Shield, Users } from "lucide-react"
 import Link from "next/link"
-import { motion } from "framer-motion"
-import { AuroraBackground } from "@/components/ui/aurora-background"
+import { motion, useScroll, useTransform } from "framer-motion"
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -20,10 +19,12 @@ const staggerContainer = {
 }
 
 export default function Home() {
+  const { scrollYProgress } = useScroll()
+  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95])
+  
   return (
-    <div className="flex flex-col min-h-screen">
-      <AuroraBackground />
-      
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-50 via-white to-white">
       {/* Navigation */}
       <motion.nav 
         initial={{ y: -100 }}
@@ -50,7 +51,10 @@ export default function Home() {
       </motion.nav>
 
       {/* Hero Section */}
-      <section className="min-h-screen pt-20 relative overflow-hidden">
+      <motion.section 
+        style={{ opacity, scale }}
+        className="min-h-screen pt-20 relative overflow-hidden"
+      >
         {/* Main Content */}
         <div className="container mx-auto px-4 pt-20">
           <div className="max-w-4xl mx-auto text-center relative">
@@ -113,15 +117,15 @@ export default function Home() {
             </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Features */}
-      <section className="py-20 bg-white/80 backdrop-blur-sm">
+      <section className="py-20">
         <div className="container mx-auto px-4">
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.5 }}
             className="text-3xl font-bold text-center text-gray-900 mb-12"
           >
@@ -131,7 +135,7 @@ export default function Home() {
             variants={staggerContainer}
             initial="initial"
             whileInView="animate"
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-50px" }}
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8"
           >
             {[
@@ -163,21 +167,33 @@ export default function Home() {
             ].map((feature, index) => (
               <motion.div
                 key={index}
-                variants={fadeInUp}
+                variants={{
+                  initial: { opacity: 0, y: 50 },
+                  animate: { opacity: 1, y: 0 }
+                }}
+                transition={{ duration: 0.5 }}
                 className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition group"
               >
-                <div className="w-16 h-16 bg-blue-50 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                <motion.div 
+                  whileHover={{ scale: 1.1 }}
+                  className="w-16 h-16 bg-blue-50 rounded-lg flex items-center justify-center mb-6"
+                >
                   {feature.icon}
-                </div>
+                </motion.div>
                 <h3 className="text-2xl font-semibold text-gray-900 mb-4">{feature.title}</h3>
                 <p className="text-gray-600 leading-relaxed">{feature.description}</p>
-                <Link 
-                  href={`/features/${feature.title.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="mt-6 inline-flex items-center text-blue-600 hover:text-blue-700 transition group"
+                <motion.div
+                  whileHover={{ x: 10 }}
+                  className="mt-6"
                 >
-                  Detaylı Bilgi
-                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition" />
-                </Link>
+                  <Link 
+                    href={`/features/${feature.title.toLowerCase().replace(/\s+/g, '-')}`}
+                    className="inline-flex items-center text-blue-600 hover:text-blue-700 transition"
+                  >
+                    Detaylı Bilgi
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </motion.div>
               </motion.div>
             ))}
           </motion.div>
@@ -185,7 +201,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900/90 backdrop-blur-sm text-gray-400 py-12">
+      <footer className="bg-gray-900 text-gray-400 py-12">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
@@ -225,6 +241,12 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Scroll Progress Bar */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-blue-600 origin-left z-50"
+        style={{ scaleX: scrollYProgress }}
+      />
     </div>
   )
 } 
