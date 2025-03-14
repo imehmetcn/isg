@@ -1,11 +1,11 @@
-import { type AuthOptions, type DefaultSession } from "next-auth"
+import { type DefaultSession, type NextAuthOptions } from "next-auth"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { compare } from "bcryptjs"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { db } from "@/lib/db"
 
 declare module "next-auth" {
-  interface Session {
+  interface Session extends DefaultSession {
     user: {
       id: string
       role: string
@@ -25,7 +25,7 @@ declare module "next-auth/jwt" {
   }
 }
 
-export const authOptions: AuthOptions = {
+export const config = {
   adapter: PrismaAdapter(db),
   session: {
     strategy: "jwt",
@@ -92,4 +92,4 @@ export const authOptions: AuthOptions = {
       return session
     }
   }
-} 
+} satisfies NextAuthOptions 
