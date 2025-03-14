@@ -1,10 +1,25 @@
+import { type NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { hash } from "bcryptjs"
 import { db } from "@/lib/db"
+import * as z from "zod"
 
-export async function POST(req: Request) {
+const registerSchema = z.object({
+  email: z.string().email({
+    message: "Geçerli bir email adresi giriniz.",
+  }),
+  password: z.string().min(6, {
+    message: "Şifre en az 6 karakter olmalıdır.",
+  }),
+  name: z.string().min(2, {
+    message: "İsim en az 2 karakter olmalıdır.",
+  }),
+})
+
+export async function POST(req: NextRequest) {
   try {
-    const { email, password, name } = await req.json()
+    const body = await req.json()
+    const { email, password, name } = registerSchema.parse(body)
 
     // Email kontrolü
     const existingUser = await db.user.findUnique({
@@ -41,6 +56,13 @@ export async function POST(req: Request) {
       }
     })
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: error.errors[0].message },
+        { status: 400 }
+      )
+    }
+
     console.error(error)
     return NextResponse.json(
       { error: "Bir hata oluştu" },
