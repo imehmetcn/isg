@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, BarChart2, FileText, Shield, Users } from "lucide-react"
+import { ArrowRight, BarChart2, FileText, Shield, Users, CheckCircle, AlertTriangle, GraduationCap, ClipboardCheck, Siren } from "lucide-react"
 import Link from "next/link"
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import { useRef } from "react"
@@ -206,33 +206,73 @@ export default function Home() {
               initial="initial"
               whileInView="animate"
               viewport={{ once: true, margin: "-50px" }}
-              className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8"
+              className="grid lg:grid-cols-2 gap-8 mb-8"
             >
               {[
                 {
                   icon: <Shield className="text-blue-600 w-8 h-8" />,
                   title: "Risk Değerlendirme",
-                  description: "Kapsamlı risk analizi, tehlike belirleme, önleyici tedbirler ve risk skorlama sistemleri ile işyeri güvenliğini en üst seviyeye çıkarın."
+                  description: "Kapsamlı risk analizi ve tehlike belirleme sistemi",
+                  features: [
+                    "5x5 Matris ve Fine-Kinney metodları",
+                    "Özelleştirilebilir risk skorlama",
+                    "Otomatik risk raporu oluşturma",
+                    "Tehlike kütüphanesi ve şablonlar",
+                    "Düzeltici önleyici faaliyet takibi"
+                  ],
+                  color: "blue"
                 },
                 {
-                  icon: <FileText className="text-blue-600 w-8 h-8" />,
+                  icon: <AlertTriangle className="text-orange-600 w-8 h-8" />,
                   title: "Olay Takibi",
-                  description: "İş kazaları, ramak kala olayları ve meslek hastalıklarını detaylı raporlama ve analiz araçlarıyla takip edin."
+                  description: "İş kazaları ve ramak kala olayları yönetimi",
+                  features: [
+                    "Kaza bildirim formları",
+                    "Kök neden analizi araçları",
+                    "İstatistiksel analiz ve raporlama",
+                    "Mobil uygulama ile anında bildirim",
+                    "SGK entegrasyonu"
+                  ],
+                  color: "orange"
                 },
                 {
-                  icon: <Users className="text-blue-600 w-8 h-8" />,
+                  icon: <GraduationCap className="text-green-600 w-8 h-8" />,
                   title: "Eğitim Yönetimi",
-                  description: "Çalışan eğitimlerini planlayin, online eğitim içerikleri oluşturun ve sertifika süreçlerini otomatik takip edin."
+                  description: "Çalışan eğitimlerinin dijital yönetimi",
+                  features: [
+                    "Online eğitim içerikleri",
+                    "Sertifika ve yetkinlik takibi",
+                    "Eğitim takvimi ve hatırlatmalar",
+                    "Eğitim katılım ve başarı takibi",
+                    "Özelleştirilebilir eğitim materyalleri"
+                  ],
+                  color: "green"
                 },
                 {
-                  icon: <BarChart2 className="text-blue-600 w-8 h-8" />,
+                  icon: <ClipboardCheck className="text-purple-600 w-8 h-8" />,
                   title: "Denetim ve Kontrol",
-                  description: "Periyodik kontroller, ekipman denetimleri ve saha gözlemlerini mobil uygulama desteğiyle gerçekleştirin."
+                  description: "Saha denetimleri ve ekipman kontrolleri",
+                  features: [
+                    "Dijital kontrol formları",
+                    "Periyodik kontrol takibi",
+                    "Mobil saha denetimi",
+                    "Uygunsuzluk yönetimi",
+                    "Fotoğraflı raporlama"
+                  ],
+                  color: "purple"
                 },
                 {
-                  icon: <Shield className="text-red-600 w-8 h-8" />,
+                  icon: <Siren className="text-red-600 w-8 h-8" />,
                   title: "Acil Durum ve Eylem Planı",
-                  description: "Acil durum planları oluşturun, tatbikat takibi yapın ve müdahale ekiplerini organize edin."
+                  description: "Acil durum yönetimi ve müdahale planlaması",
+                  features: [
+                    "Acil durum ekip yönetimi",
+                    "Tatbikat planlama ve takibi",
+                    "Tahliye planı oluşturma",
+                    "Acil durum talimatları",
+                    "Olay sonrası değerlendirme"
+                  ],
+                  color: "red"
                 }
               ].map((feature, index) => (
                 <motion.div
@@ -246,36 +286,54 @@ export default function Home() {
                     y: -5,
                     transition: { duration: 0.2 }
                   }}
-                  className="bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition group"
+                  className={`bg-white p-8 rounded-xl shadow-sm hover:shadow-xl transition group border-t-4 border-${feature.color}-500`}
                 >
-                  <motion.div 
-                    whileHover={{ 
-                      scale: 1.1,
-                      rotate: 5
-                    }}
-                    className="w-16 h-16 bg-blue-50 rounded-lg flex items-center justify-center mb-6"
-                  >
-                    {feature.icon}
-                  </motion.div>
-                  <motion.h3 
-                    whileHover={{ x: 5 }}
-                    className="text-2xl font-semibold text-gray-900 mb-4"
-                  >
-                    {feature.title}
-                  </motion.h3>
-                  <p className="text-gray-600 leading-relaxed">{feature.description}</p>
-                  <motion.div
-                    whileHover={{ x: 10, scale: 1.02 }}
-                    className="mt-6"
-                  >
-                    <Link 
-                      href={`/features/${feature.title.toLowerCase().replace(/\s+/g, '-')}`}
-                      className="inline-flex items-center text-blue-600 hover:text-blue-700 transition"
+                  <div className="flex items-start gap-6">
+                    <motion.div 
+                      whileHover={{ 
+                        scale: 1.1,
+                        rotate: 5
+                      }}
+                      className={`w-16 h-16 bg-${feature.color}-50 rounded-lg flex items-center justify-center shrink-0`}
                     >
-                      Detaylı Bilgi
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Link>
-                  </motion.div>
+                      {feature.icon}
+                    </motion.div>
+                    <div>
+                      <motion.h3 
+                        whileHover={{ x: 5 }}
+                        className="text-2xl font-semibold text-gray-900 mb-2"
+                      >
+                        {feature.title}
+                      </motion.h3>
+                      <p className="text-gray-600 mb-6">{feature.description}</p>
+                      <ul className="space-y-3">
+                        {feature.features.map((item, i) => (
+                          <motion.li 
+                            key={i}
+                            initial={{ opacity: 0, x: -20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.1 }}
+                            className="flex items-center gap-2 text-gray-600"
+                          >
+                            <CheckCircle className={`w-5 h-5 text-${feature.color}-500 shrink-0`} />
+                            <span>{item}</span>
+                          </motion.li>
+                        ))}
+                      </ul>
+                      <motion.div
+                        whileHover={{ x: 10, scale: 1.02 }}
+                        className="mt-8"
+                      >
+                        <Link 
+                          href={`/features/${feature.title.toLowerCase().replace(/\s+/g, '-')}`}
+                          className={`inline-flex items-center text-${feature.color}-600 hover:text-${feature.color}-700 transition font-semibold`}
+                        >
+                          Detaylı Bilgi
+                          <ArrowRight className="ml-2 w-5 h-5" />
+                        </Link>
+                      </motion.div>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
