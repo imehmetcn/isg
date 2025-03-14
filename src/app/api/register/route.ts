@@ -4,6 +4,9 @@ import { hash } from "bcryptjs"
 import { db } from "@/lib/db"
 import * as z from "zod"
 
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
+
 const registerSchema = z.object({
   email: z.string().email({
     message: "Geçerli bir email adresi giriniz.",
@@ -16,9 +19,9 @@ const registerSchema = z.object({
   }),
 })
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json()
+    const body = await request.json()
     const { email, password, name } = registerSchema.parse(body)
 
     // Email kontrolü
