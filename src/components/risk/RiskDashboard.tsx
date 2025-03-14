@@ -3,145 +3,205 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Hazard } from '@/lib/types/risk';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  PieLabelRenderProps
-} from 'recharts';
+import { PieChart, BarChart, AlertTriangle, Shield, CheckCircle } from 'lucide-react';
 
 interface RiskDashboardProps {
-  hazards: Hazard[];
+  selectedHazards: Hazard[];
 }
 
-export const RiskDashboard = ({ hazards }: RiskDashboardProps) => {
-  // Risk seviyelerine göre dağılım
-  const riskLevelDistribution = hazards.reduce((acc, hazard) => {
-    acc[hazard.riskScore.level] = (acc[hazard.riskScore.level] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+export const RiskDashboard = ({ selectedHazards }: RiskDashboardProps) => {
+  const riskLevelCounts = {
+    low: selectedHazards.filter(h => h.riskScore === 'low').length,
+    medium: selectedHazards.filter(h => h.riskScore === 'medium').length,
+    high: selectedHazards.filter(h => h.riskScore === 'high').length,
+    critical: selectedHazards.filter(h => h.riskScore === 'critical').length,
+  };
 
-  const pieChartData = Object.entries(riskLevelDistribution).map(([name, value]) => ({
-    name,
-    value
-  }));
-
-  // Kategorilere göre dağılım
-  const categoryDistribution = hazards.reduce((acc, hazard) => {
+  const categoryCounts = selectedHazards.reduce((acc, hazard) => {
     acc[hazard.category] = (acc[hazard.category] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
-  const barChartData = Object.entries(categoryDistribution).map(([name, value]) => ({
-    name,
-    value
-  }));
-
-  // Risk seviyelerine göre renkler
-  const COLORS = {
-    'Düşük': '#4CAF50',
-    'Orta': '#FFC107',
-    'Yüksek': '#FF5722',
-    'Çok Yüksek': '#F44336'
-  };
-
-  const renderPieLabel = ({ name, percent }: PieLabelRenderProps) => {
-    return `${name} (${((percent || 0) * 100).toFixed(0)}%)`;
-  };
+  const totalHazards = selectedHazards.length;
+  const criticalPercentage = (riskLevelCounts.critical / totalHazards) * 100 || 0;
+  const controlledHazards = selectedHazards.filter(h => h.controlMeasures.length > 0).length;
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-6">Risk Analizi</h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+      {/* Risk Seviyesi Dağılımı */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-xl shadow-lg p-6"
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <PieChart className="text-blue-500" size={24} />
+          <h3 className="text-lg font-semibold text-gray-800">Risk Dağılımı</h3>
+        </div>
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Düşük</span>
+            <div className="flex items-center gap-2">
+              <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-green-500"
+                  style={{ width: `${(riskLevelCounts.low / totalHazards) * 100}%` }}
+                />
+              </div>
+              <span className="text-sm font-medium">{riskLevelCounts.low}</span>
+            </div>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Orta</span>
+            <div className="flex items-center gap-2">
+              <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-yellow-500"
+                  style={{ width: `${(riskLevelCounts.medium / totalHazards) * 100}%` }}
+                />
+              </div>
+              <span className="text-sm font-medium">{riskLevelCounts.medium}</span>
+            </div>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Yüksek</span>
+            <div className="flex items-center gap-2">
+              <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-orange-500"
+                  style={{ width: `${(riskLevelCounts.high / totalHazards) * 100}%` }}
+                />
+              </div>
+              <span className="text-sm font-medium">{riskLevelCounts.high}</span>
+            </div>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">Kritik</span>
+            <div className="flex items-center gap-2">
+              <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-red-500"
+                  style={{ width: `${(riskLevelCounts.critical / totalHazards) * 100}%` }}
+                />
+              </div>
+              <span className="text-sm font-medium">{riskLevelCounts.critical}</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Risk Seviyesi Dağılımı */}
-        <div className="h-80">
-          <h3 className="text-lg font-medium text-gray-700 mb-4">Risk Seviyesi Dağılımı</h3>
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={pieChartData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={renderPieLabel}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {pieChartData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[entry.name as keyof typeof COLORS] || '#8884d8'}
+      {/* Kategori Dağılımı */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-white rounded-xl shadow-lg p-6"
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <BarChart className="text-blue-500" size={24} />
+          <h3 className="text-lg font-semibold text-gray-800">Kategori Dağılımı</h3>
+        </div>
+        <div className="space-y-3">
+          {Object.entries(categoryCounts).map(([category, count], index) => (
+            <div key={category} className="flex justify-between items-center">
+              <span className="text-sm text-gray-600 truncate max-w-[150px]">{category}</span>
+              <div className="flex items-center gap-2">
+                <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-blue-500"
+                    style={{ width: `${(count / totalHazards) * 100}%` }}
                   />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
+                </div>
+                <span className="text-sm font-medium">{count}</span>
+              </div>
+            </div>
+          ))}
         </div>
+      </motion.div>
 
-        {/* Kategori Dağılımı */}
-        <div className="h-80">
-          <h3 className="text-lg font-medium text-gray-700 mb-4">Kategori Dağılımı</h3>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={barChartData}
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value" fill="#3B82F6" />
-            </BarChart>
-          </ResponsiveContainer>
+      {/* Kritik Risk Oranı */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="bg-white rounded-xl shadow-lg p-6"
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <AlertTriangle className="text-red-500" size={24} />
+          <h3 className="text-lg font-semibold text-gray-800">Kritik Risk Oranı</h3>
         </div>
-      </div>
-
-      {/* İstatistik Kartları */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="text-sm font-medium text-gray-600">Toplam Tehlike</h4>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{hazards.length}</p>
-        </div>
-
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="text-sm font-medium text-gray-600">Ortalama Risk Skoru</h4>
-          <p className="text-2xl font-bold text-gray-900 mt-1">
-            {(hazards.reduce((acc, h) => acc + h.riskScore.score, 0) / hazards.length).toFixed(1)}
+        <div className="flex flex-col items-center">
+          <div className="relative w-32 h-32">
+            <svg className="w-full h-full" viewBox="0 0 36 36">
+              <path
+                d="M18 2.0845
+                  a 15.9155 15.9155 0 0 1 0 31.831
+                  a 15.9155 15.9155 0 0 1 0 -31.831"
+                fill="none"
+                stroke="#E5E7EB"
+                strokeWidth="3"
+              />
+              <path
+                d="M18 2.0845
+                  a 15.9155 15.9155 0 0 1 0 31.831
+                  a 15.9155 15.9155 0 0 1 0 -31.831"
+                fill="none"
+                stroke="#EF4444"
+                strokeWidth="3"
+                strokeDasharray={`${criticalPercentage}, 100`}
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-2xl font-bold text-gray-800">{Math.round(criticalPercentage)}%</span>
+            </div>
+          </div>
+          <p className="mt-4 text-sm text-gray-600 text-center">
+            Kritik risk seviyesindeki tehlikelerin oranı
           </p>
         </div>
+      </motion.div>
 
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="text-sm font-medium text-gray-600">En Riskli Kategori</h4>
-          <p className="text-2xl font-bold text-gray-900 mt-1">
-            {Object.entries(categoryDistribution).sort((a, b) => b[1] - a[1])[0]?.[0] || '-'}
+      {/* Kontrol Önlemleri */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="bg-white rounded-xl shadow-lg p-6"
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <Shield className="text-green-500" size={24} />
+          <h3 className="text-lg font-semibold text-gray-800">Kontrol Durumu</h3>
+        </div>
+        <div className="flex flex-col items-center">
+          <div className="relative w-32 h-32">
+            <svg className="w-full h-full" viewBox="0 0 36 36">
+              <path
+                d="M18 2.0845
+                  a 15.9155 15.9155 0 0 1 0 31.831
+                  a 15.9155 15.9155 0 0 1 0 -31.831"
+                fill="none"
+                stroke="#E5E7EB"
+                strokeWidth="3"
+              />
+              <path
+                d="M18 2.0845
+                  a 15.9155 15.9155 0 0 1 0 31.831
+                  a 15.9155 15.9155 0 0 1 0 -31.831"
+                fill="none"
+                stroke="#22C55E"
+                strokeWidth="3"
+                strokeDasharray={`${(controlledHazards / totalHazards) * 100}, 100`}
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-2xl font-bold text-gray-800">{controlledHazards}/{totalHazards}</span>
+            </div>
+          </div>
+          <p className="mt-4 text-sm text-gray-600 text-center">
+            Kontrol önlemi tanımlanmış tehlike sayısı
           </p>
         </div>
-
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="text-sm font-medium text-gray-600">Yüksek Riskli Tehlike</h4>
-          <p className="text-2xl font-bold text-gray-900 mt-1">
-            {hazards.filter(h => h.riskScore.level === 'Yüksek' || h.riskScore.level === 'Çok Yüksek').length}
-          </p>
-        </div>
-      </div>
+      </motion.div>
     </div>
   );
 }; 

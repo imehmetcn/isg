@@ -1,226 +1,137 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Plus, ChevronDown, ChevronUp, Filter, SortAsc, SortDesc } from 'lucide-react';
+import { Search, Plus, Filter } from 'lucide-react';
 import { Hazard } from '@/lib/types/risk';
 import { AddHazardModal } from './AddHazardModal';
 
 interface HazardLibraryProps {
-  onHazardSelect: (hazard: Hazard) => void;
+  hazards: Hazard[];
+  onAddHazard: (hazard: Hazard) => void;
+  onSelectHazard: (hazard: Hazard) => void;
 }
 
-const defaultHazards: Hazard[] = [
-  {
-    id: '1',
-    category: 'Fiziksel Tehlikeler',
-    subCategory: 'Yüksekte Çalışma',
-    description: 'Yüksekte çalışma sırasında düşme riski',
-    potentialConsequences: ['Ciddi yaralanma', 'Ölüm', 'İş gücü kaybı'],
-    controlMeasures: [
-      'Emniyet kemeri kullanımı',
-      'Korkuluk sistemleri',
-      'Çalışma platformu',
-      'Eğitim ve yetkinlik kontrolü'
-    ],
-    riskScore: {
-      severity: 5,
-      probability: 3,
-      score: 15,
-      level: 'Yüksek',
-      color: '#FF5722'
-    }
-  },
-  // Daha fazla hazır tehlike eklenebilir
-];
-
-type SortField = 'category' | 'riskScore' | 'date';
-type SortOrder = 'asc' | 'desc';
-
-export const HazardLibrary = ({ onHazardSelect }: HazardLibraryProps) => {
+export const HazardLibrary = ({ hazards, onAddHazard, onSelectHazard }: HazardLibraryProps) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [hazards, setHazards] = useState<Hazard[]>(defaultHazards);
-  const [sortField, setSortField] = useState<SortField>('category');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
-  const [filterRiskLevel, setFilterRiskLevel] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const categories = Array.from(new Set(hazards.map(h => h.category)));
 
-  const toggleCategory = (category: string) => {
-    setExpandedCategories(prev =>
-      prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
-    );
-  };
+  const filteredHazards = hazards.filter(hazard => {
+    const matchesSearch = hazard.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         hazard.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         hazard.subCategory.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = !selectedCategory || hazard.category === selectedCategory;
+    
+    return matchesSearch && matchesCategory;
+  });
 
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortOrder('asc');
+  const getRiskLevelColor = (level: string) => {
+    switch (level) {
+      case 'low': return 'bg-green-100 text-green-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'high': return 'bg-orange-100 text-orange-800';
+      case 'critical': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const filteredAndSortedHazards = useMemo(() => {
-    let result = hazards.filter(hazard =>
-      (searchTerm === '' || 
-       hazard.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       hazard.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       (hazard.subCategory?.toLowerCase() || '').includes(searchTerm.toLowerCase())) &&
-      (filterRiskLevel === 'all' || hazard.riskScore.level === filterRiskLevel)
-    );
-
-    return result.sort((a, b) => {
-      if (sortField === 'category') {
-        return sortOrder === 'asc'
-          ? a.category.localeCompare(b.category)
-          : b.category.localeCompare(a.category);
-      } else if (sortField === 'riskScore') {
-        return sortOrder === 'asc'
-          ? a.riskScore.score - b.riskScore.score
-          : b.riskScore.score - a.riskScore.score;
-      }
-      return 0;
-    });
-  }, [hazards, searchTerm, sortField, sortOrder, filterRiskLevel]);
-
-  const handleAddHazard = (newHazard: Hazard) => {
-    setHazards(prev => [...prev, newHazard]);
-  };
-
   return (
-    <>
-      <div className="space-y-4">
-        {/* Arama ve Filtreler */}
-        <div className="flex flex-col gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="Tehlike ara..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <select
-                value={filterRiskLevel}
-                onChange={(e) => setFilterRiskLevel(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">Tüm Risk Seviyeleri</option>
-                <option value="Düşük">Düşük Risk</option>
-                <option value="Orta">Orta Risk</option>
-                <option value="Yüksek">Yüksek Risk</option>
-                <option value="Çok Yüksek">Çok Yüksek Risk</option>
-              </select>
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleSort('category')}
-                className={`p-2 rounded-lg border ${
-                  sortField === 'category' ? 'border-blue-500 text-blue-500' : 'border-gray-300'
-                }`}
-                title="Kategoriye göre sırala"
-              >
-                {sortField === 'category' && sortOrder === 'asc' ? <SortAsc size={20} /> : <SortDesc size={20} />}
-              </button>
-              <button
-                onClick={() => handleSort('riskScore')}
-                className={`p-2 rounded-lg border ${
-                  sortField === 'riskScore' ? 'border-blue-500 text-blue-500' : 'border-gray-300'
-                }`}
-                title="Risk skoruna göre sırala"
-              >
-                {sortField === 'riskScore' && sortOrder === 'asc' ? <SortAsc size={20} /> : <SortDesc size={20} />}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Tehlike Listesi */}
-        <div className="space-y-4">
-          {categories.map(category => {
-            const categoryHazards = filteredAndSortedHazards.filter(h => h.category === category);
-            const isExpanded = expandedCategories.includes(category);
-
-            if (categoryHazards.length === 0) return null;
-
-            return (
-              <div key={category} className="border border-gray-200 rounded-lg overflow-hidden">
-                <button
-                  className="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100"
-                  onClick={() => toggleCategory(category)}
-                >
-                  <span className="font-medium text-gray-700">{category}</span>
-                  {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                </button>
-
-                {isExpanded && (
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: 'auto' }}
-                    exit={{ height: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="divide-y divide-gray-200"
-                  >
-                    {categoryHazards.map(hazard => (
-                      <motion.div
-                        key={hazard.id}
-                        className="p-4 hover:bg-gray-50 cursor-pointer"
-                        onClick={() => onHazardSelect(hazard)}
-                        whileHover={{ x: 4 }}
-                      >
-                        <div className="font-medium text-gray-800 mb-1">
-                          {hazard.subCategory}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {hazard.description}
-                        </div>
-                        <div className="mt-2 flex items-center gap-2">
-                          <div
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: hazard.riskScore.color }}
-                          />
-                          <span className="text-xs text-gray-500">
-                            {hazard.riskScore.level}
-                          </span>
-                          <span className="text-xs text-gray-400 ml-2">
-                            Skor: {hazard.riskScore.score}
-                          </span>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </motion.div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
+    <div className="bg-white rounded-xl shadow-lg p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">Tehlike Kütüphanesi</h2>
         <button
-          className="mt-6 w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => setIsAddModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
         >
           <Plus size={20} />
-          <span>Yeni Tehlike Ekle</span>
+          <span>Yeni Tehlike</span>
         </button>
       </div>
 
+      <div className="flex gap-4 mb-6">
+        <div className="flex-1 relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Tehlike ara..."
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div className="relative">
+          <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
+          >
+            <option value="">Tüm Kategoriler</option>
+            {categories.map(category => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {filteredHazards.map(hazard => (
+          <motion.div
+            key={hazard.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 border border-gray-200 rounded-lg hover:border-blue-500 cursor-pointer"
+            onClick={() => onSelectHazard(hazard)}
+          >
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <h3 className="font-semibold text-gray-800">{hazard.description}</h3>
+                <p className="text-sm text-gray-600">{hazard.category} - {hazard.subCategory}</p>
+              </div>
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getRiskLevelColor(hazard.riskScore)}`}>
+                {hazard.riskScore.charAt(0).toUpperCase() + hazard.riskScore.slice(1)}
+              </span>
+            </div>
+            
+            <div className="mt-4 space-y-2">
+              <div>
+                <p className="text-sm font-medium text-gray-700">Olası Sonuçlar:</p>
+                <ul className="list-disc list-inside text-sm text-gray-600">
+                  {hazard.potentialConsequences.map((consequence, index) => (
+                    <li key={index}>{consequence}</li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div>
+                <p className="text-sm font-medium text-gray-700">Kontrol Önlemleri:</p>
+                <ul className="list-disc list-inside text-sm text-gray-600">
+                  {hazard.controlMeasures.map((measure, index) => (
+                    <li key={index}>{measure}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+
+        {filteredHazards.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            Arama kriterlerine uygun tehlike bulunamadı.
+          </div>
+        )}
+      </div>
+
       <AddHazardModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onAdd={handleAddHazard}
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAdd={onAddHazard}
       />
-    </>
+    </div>
   );
 }; 

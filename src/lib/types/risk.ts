@@ -12,12 +12,14 @@ export interface RiskScore {
 export interface Hazard {
   id: string;
   category: string;
-  subCategory?: string;
+  subCategory: string;
   description: string;
   potentialConsequences: string[];
   controlMeasures: string[];
-  riskScore: RiskScore;
+  riskScore: RiskLevel;
 }
+
+export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
 
 export interface RiskAssessment {
   id: string;
@@ -30,16 +32,11 @@ export interface RiskAssessment {
   status: 'draft' | 'pending' | 'approved' | 'archived';
 }
 
-export const getRiskLevel = (severity: Severity, probability: Probability): RiskScore => {
+export const getRiskLevel = (severity: Severity, probability: Probability): RiskLevel => {
   const score = severity * probability;
   
-  if (score <= 4) {
-    return { severity, probability, score, level: 'Düşük', color: '#4CAF50' };
-  } else if (score <= 9) {
-    return { severity, probability, score, level: 'Orta', color: '#FFC107' };
-  } else if (score <= 16) {
-    return { severity, probability, score, level: 'Yüksek', color: '#FF5722' };
-  } else {
-    return { severity, probability, score, level: 'Çok Yüksek', color: '#F44336' };
-  }
+  if (score <= 6) return 'low';
+  if (score <= 12) return 'medium';
+  if (score <= 20) return 'high';
+  return 'critical';
 }; 
