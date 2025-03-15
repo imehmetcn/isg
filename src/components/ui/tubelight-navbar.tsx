@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
-import { LucideIcon, Bell, Settings, User, Menu, X } from "lucide-react"
+import { LucideIcon, Bell, Settings, User, Menu, X, Home, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useScroll } from "@/hooks/use-scroll"
 
@@ -15,12 +15,26 @@ interface NavItem {
 }
 
 interface NavBarProps {
-  items: NavItem[]
+  items?: NavItem[]
   className?: string
 }
 
-export function NavBar({ items, className }: NavBarProps) {
-  const [activeTab, setActiveTab] = useState(items[0].name)
+export function NavBar({ items = [], className }: NavBarProps) {
+  const defaultItems = [
+    {
+      name: "Ana Sayfa",
+      url: "/",
+      icon: Home
+    },
+    {
+      name: "Risk Değerlendirmesi",
+      url: "/risk-assessment",
+      icon: AlertTriangle
+    }
+  ]
+
+  const navItems = items.length > 0 ? items : defaultItems
+  const [activeTab, setActiveTab] = useState(navItems[0].name)
   const [isMobile, setIsMobile] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [notifications] = useState(3) // Örnek bildirim sayısı
@@ -90,7 +104,7 @@ export function NavBar({ items, className }: NavBarProps) {
                 ? "bg-gray-100/50 dark:bg-gray-900/50"
                 : "bg-gray-100 dark:bg-gray-900"
             )}>
-              {items.map((item) => {
+              {navItems.map((item) => {
                 const Icon = item.icon
                 const isActive = activeTab === item.name
 
@@ -170,7 +184,7 @@ export function NavBar({ items, className }: NavBarProps) {
             className="md:hidden overflow-hidden bg-white dark:bg-gray-950"
           >
             <div className="px-4 py-2 space-y-1">
-              {items.map((item) => {
+              {navItems.map((item) => {
                 const Icon = item.icon
                 const isActive = activeTab === item.name
 
