@@ -1,6 +1,6 @@
 "use client";
 
-import { Shield, AlertTriangle, BookOpen, ClipboardCheck, Siren } from "lucide-react";
+import { Shield, AlertTriangle, BookOpen, ClipboardCheck, Siren, FileWarning } from "lucide-react";
 import { NavBar } from "@/components/ui/tubelight-navbar";
 
 const menuItems = [
@@ -23,6 +23,11 @@ const menuItems = [
     name: "Eğitim Yönetimi",
     url: "/training",
     icon: BookOpen,
+  },
+  {
+    name: "Acil Durum Planı",
+    url: "/emergency-plan",
+    icon: FileWarning,
   },
   {
     name: "Denetim",
