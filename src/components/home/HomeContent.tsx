@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { Hero } from './Hero';
-import { Stats } from './Stats';
+import { Hero } from "./Hero";
+import { Stats } from "./Stats";
 
 export function HomeContent() {
   return (
-    <main className="flex-auto">
+    <main>
       <Hero />
       <Stats />
     </main>
