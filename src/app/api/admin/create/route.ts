@@ -39,18 +39,19 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    return NextResponse.json({
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
+    const { password: _, ...userWithoutPassword } = user
+
+    return NextResponse.json(
+      { 
+        message: "Admin user created successfully",
+        user: userWithoutPassword
       },
-    })
+      { status: 201 }
+    )
   } catch (error) {
     console.error("Error creating admin user:", error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Failed to create admin user" },
       { status: 500 }
     )
   }
