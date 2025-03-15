@@ -1,14 +1,6 @@
 export type Severity = 1 | 2 | 3 | 4 | 5;
 export type Probability = 1 | 2 | 3 | 4 | 5;
 
-export interface RiskScore {
-  severity: Severity;
-  probability: Probability;
-  score: number;
-  level: 'Düşük' | 'Orta' | 'Yüksek' | 'Çok Yüksek';
-  color: string;
-}
-
 export interface Hazard {
   id: string;
   category: string;

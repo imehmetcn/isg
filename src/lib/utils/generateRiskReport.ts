@@ -127,29 +127,4 @@ export const generateRiskReport = (assessment: RiskAssessment) => {
   doc.text(`Kritik Risk: ${riskLevels.critical} (${((riskLevels.critical / totalHazards) * 100).toFixed(1)}%)`, margin, y);
 
   return doc;
-};
-
-const calculateRiskStats = (hazards: Hazard[]) => {
-  return hazards.reduce((stats, hazard) => {
-    switch (hazard.riskScore.level) {
-      case 'Düşük':
-        stats.low++;
-        break;
-      case 'Orta':
-        stats.medium++;
-        break;
-      case 'Yüksek':
-        stats.high++;
-        break;
-      case 'Çok Yüksek':
-        stats.veryHigh++;
-        break;
-    }
-    return stats;
-  }, {
-    low: 0,
-    medium: 0,
-    high: 0,
-    veryHigh: 0
-  });
 }; 
