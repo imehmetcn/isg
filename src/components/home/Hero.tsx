@@ -4,9 +4,15 @@ import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
-export const Hero = () => {
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5 }
+};
+
+export function Hero() {
   return (
-    <div className="relative isolate">
+    <section className="relative isolate">
       {/* Background gradient */}
       <div
         className="absolute inset-x-0 top-[-10rem] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[-20rem]"
@@ -22,39 +28,34 @@ export const Hero = () => {
       </div>
 
       <div className="py-12 sm:py-20">
-        {/* Hero section */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-4xl text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
+            <motion.div {...fadeInUp}>
               <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-sm font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 mb-6">
                 Türkiye'nin En Kapsamlı İSG Yazılımı
               </span>
             </motion.div>
+            
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              {...fadeInUp}
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl"
             >
               İş Güvenliği Yönetimini{' '}
               <span className="text-blue-600">Dijitalleştirin</span>
             </motion.h1>
+
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              {...fadeInUp}
               transition={{ duration: 0.5, delay: 0.2 }}
               className="mt-6 text-lg leading-8 text-gray-600"
             >
               Tüm İSG süreçlerinizi tek platformda yönetin. Risk değerlendirmeden eğitim
               takibine, denetimlerden raporlamalara kadar her şey kontrolünüz altında.
             </motion.p>
+
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              {...fadeInUp}
               transition={{ duration: 0.5, delay: 0.3 }}
               className="mt-10 flex items-center justify-center gap-x-6"
             >
@@ -75,6 +76,6 @@ export const Hero = () => {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
-}; 
+} 
