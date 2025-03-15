@@ -19,14 +19,14 @@ export default function Home() {
       ctaText="Hemen Başlayın"
       ctaHref="/features/risk-degerlendirme"
       bottomImage={{
-        light: "/dashboard-light.png",
+        light: "/dashboard-dark.png",
         dark: "/dashboard-dark.png",
       }}
       gridOptions={{
         angle: 65,
         opacity: 0.4,
         cellSize: 50,
-        lightLineColor: "#4a4a4a",
+        lightLineColor: "#2a2a2a",
         darkLineColor: "#2a2a2a",
       }}
     />

@@ -1,9 +1,8 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { GeistSans } from 'geist/font/sans'
+import { cn } from '@/lib/utils'
 import './globals.css'
 import { NavBar } from '@/components/ui/tubelight-navbar'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'İSG Yönetim Sistemi',
@@ -11,6 +10,12 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
+        media: '(prefers-color-scheme: light)',
+        url: '/favicon.svg',
+        href: '/favicon.svg',
+      },
+      {
+        media: '(prefers-color-scheme: dark)',
         url: '/favicon.svg',
         href: '/favicon.svg',
       },
@@ -24,8 +29,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="tr" className="h-full">
-      <body className={inter.className}>
+    <html lang="tr" className="dark">
+      <body
+        className={cn(
+          'min-h-screen bg-background font-sans antialiased',
+          GeistSans.variable
+        )}
+      >
         <NavBar />
         <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-20 pb-16">
           {children}
