@@ -4,21 +4,10 @@ import React, { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
-import { LucideIcon, Bell, Settings, User, Menu, X, Home, AlertTriangle } from "lucide-react"
+import { LucideIcon, Bell, Settings, User, Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useScroll } from "@/hooks/use-scroll"
 import { usePathname } from "next/navigation"
-
-interface NavItem {
-  name: string
-  url: string
-  icon: LucideIcon
-}
-
-interface NavBarProps {
-  items?: NavItem[]
-  className?: string
-}
 
 const navigationItems = [
   {
@@ -43,25 +32,14 @@ const navigationItems = [
   },
 ]
 
-export function NavBar({ items = [], className }: NavBarProps) {
-  const defaultItems = [
-    {
-      name: "Ana Sayfa",
-      url: "/",
-      icon: Home
-    },
-    {
-      name: "Risk Değerlendirmesi",
-      url: "/risk-assessment",
-      icon: AlertTriangle
-    }
-  ]
+interface NavBarProps {
+  className?: string
+}
 
-  const navItems = items.length > 0 ? items : defaultItems
-  const [activeTab, setActiveTab] = useState(navItems[0].name)
+export function NavBar({ className }: NavBarProps) {
   const [isMobile, setIsMobile] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [notifications] = useState(3) // Örnek bildirim sayısı
+  const [notifications] = useState(3)
   const { scrolled, scrollDirection } = useScroll(10)
   const pathname = usePathname()
 
@@ -123,43 +101,26 @@ export function NavBar({ items = [], className }: NavBarProps) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center justify-center flex-1 px-8">
-            <div className={cn(
-              "flex items-center -space-x-3 px-2 py-1.5 rounded-full transition-all duration-200",
-              scrolled
-                ? "bg-gray-100/50 dark:bg-gray-900/50"
-                : "bg-gray-100 dark:bg-gray-900"
-            )}>
-              {navItems.map((item) => {
-                const Icon = item.icon
-                const isActive = activeTab === item.name
+            <div className="flex items-center -space-x-3">
+              {navigationItems.map((item) => {
+                const isActive = pathname === item.href
 
                 return (
                   <Link
-                    key={item.name}
-                    href={item.url}
-                    onClick={() => setActiveTab(item.name)}
+                    key={item.href}
+                    href={item.href}
                     className={cn(
-                      "relative px-4 py-2 rounded-full transition-colors duration-200",
-                      "text-sm font-medium",
+                      "relative flex items-center px-3 py-2 text-sm font-medium transition-colors",
                       isActive
                         ? "text-blue-600 dark:text-blue-500"
-                        : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500",
+                        : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500"
                     )}
                   >
-                    <span className="relative z-10 flex items-center gap-2">
-                      <Icon className="w-4 h-4" />
-                      <span>{item.name}</span>
-                    </span>
+                    {item.name}
                     {isActive && (
                       <motion.div
-                        layoutId="bubble"
-                        className={cn(
-                          "absolute inset-0 z-0 rounded-full shadow-sm",
-                          scrolled
-                            ? "bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm"
-                            : "bg-white dark:bg-gray-800"
-                        )}
-                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                        layoutId="navbar-active"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-500"
                       />
                     )}
                   </Link>
@@ -184,6 +145,12 @@ export function NavBar({ items = [], className }: NavBarProps) {
             <button className="p-2 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
               <User className="w-5 h-5" />
             </button>
+            <Link
+              href="/risk-assessment"
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring bg-blue-600 text-white shadow hover:bg-blue-500 h-9 px-4"
+            >
+              Hemen Başla
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -209,26 +176,21 @@ export function NavBar({ items = [], className }: NavBarProps) {
             className="md:hidden overflow-hidden bg-white dark:bg-gray-950"
           >
             <div className="px-4 py-2 space-y-1">
-              {navItems.map((item) => {
-                const Icon = item.icon
-                const isActive = activeTab === item.name
+              {navigationItems.map((item) => {
+                const isActive = pathname === item.href
 
                 return (
                   <Link
-                    key={item.name}
-                    href={item.url}
-                    onClick={() => {
-                      setActiveTab(item.name)
-                      setIsMenuOpen(false)
-                    }}
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMenuOpen(false)}
                     className={cn(
                       "flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200",
                       isActive
                         ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-500"
-                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900",
+                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900"
                     )}
                   >
-                    <Icon className="w-5 h-5" />
                     <span>{item.name}</span>
                   </Link>
                 )
