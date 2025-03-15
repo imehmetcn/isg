@@ -1,87 +1,130 @@
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { Hazard, RiskAssessment } from '../types/risk';
+import { Hazard, RiskAssessment } from '@/lib/types/risk';
+
+const getRiskLevelText = (riskLevel: string): string => {
+  switch (riskLevel) {
+    case 'low':
+      return 'Düşük';
+    case 'medium':
+      return 'Orta';
+    case 'high':
+      return 'Yüksek';
+    case 'critical':
+      return 'Kritik';
+    default:
+      return 'Bilinmiyor';
+  }
+};
+
+const getRiskLevelColor = (riskLevel: string): string => {
+  switch (riskLevel) {
+    case 'low':
+      return '#4CAF50';
+    case 'medium':
+      return '#FFC107';
+    case 'high':
+      return '#FF5722';
+    case 'critical':
+      return '#F44336';
+    default:
+      return '#E5E7EB';
+  }
+};
 
 export const generateRiskReport = (assessment: RiskAssessment) => {
   const doc = new jsPDF();
-  
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 20;
+  let y = margin;
+
   // Başlık
   doc.setFontSize(20);
-  doc.text('Risk Değerlendirme Raporu', 20, 20);
-  
+  doc.text('Risk Değerlendirme Raporu', pageWidth / 2, y, { align: 'center' });
+  y += 15;
+
   // Değerlendirme Bilgileri
   doc.setFontSize(12);
-  doc.text(`Değerlendirme Başlığı: ${assessment.title}`, 20, 35);
-  doc.text(`Departman: ${assessment.department}`, 20, 45);
-  doc.text(`Değerlendirme Tarihi: ${assessment.assessmentDate.toLocaleDateString()}`, 20, 55);
-  doc.text(`Gözden Geçirme Tarihi: ${assessment.reviewDate.toLocaleDateString()}`, 20, 65);
-  doc.text(`Değerlendiren: ${assessment.assessor}`, 20, 75);
-  doc.text(`Durum: ${assessment.status}`, 20, 85);
+  doc.text(`Değerlendirme Başlığı: ${assessment.title}`, margin, y);
+  y += 10;
+  doc.text(`Departman: ${assessment.department}`, margin, y);
+  y += 10;
+  doc.text(`Değerlendiren: ${assessment.assessor}`, margin, y);
+  y += 10;
+  doc.text(`Değerlendirme Tarihi: ${assessment.assessmentDate.toLocaleDateString()}`, margin, y);
+  y += 10;
+  doc.text(`Gözden Geçirme Tarihi: ${assessment.reviewDate.toLocaleDateString()}`, margin, y);
+  y += 20;
 
-  // Risk İstatistikleri
-  const riskStats = calculateRiskStats(assessment.hazards);
+  // Tehlikeler Tablosu
   doc.setFontSize(14);
-  doc.text('Risk İstatistikleri', 20, 100);
-  doc.setFontSize(12);
-  doc.text(`Toplam Tehlike: ${assessment.hazards.length}`, 20, 110);
-  doc.text(`Düşük Risk: ${riskStats.low}`, 20, 120);
-  doc.text(`Orta Risk: ${riskStats.medium}`, 20, 130);
-  doc.text(`Yüksek Risk: ${riskStats.high}`, 20, 140);
-  doc.text(`Çok Yüksek Risk: ${riskStats.veryHigh}`, 20, 150);
+  doc.text('Tespit Edilen Tehlikeler', margin, y);
+  y += 10;
 
-  // Tehlike Tablosu
-  doc.addPage();
-  
-  const tableData = assessment.hazards.map(hazard => [
-    hazard.category,
-    hazard.subCategory || '-',
-    hazard.description,
-    hazard.potentialConsequences.join('\n'),
-    hazard.controlMeasures.join('\n'),
-    hazard.riskScore.level,
-    hazard.riskScore.score.toString()
-  ]);
+  // Tablo başlıkları
+  doc.setFontSize(10);
+  const headers = ['Kategori', 'Tehlike', 'Risk Seviyesi', 'Kontrol Önlemleri'];
+  const columnWidths = [40, 50, 30, 60];
+  let x = margin;
 
-  autoTable(doc, {
-    head: [['Kategori', 'Alt Kategori', 'Tehlike Tanımı', 'Olası Sonuçlar', 'Kontrol Önlemleri', 'Risk Seviyesi', 'Risk Skoru']],
-    body: tableData,
-    startY: 20,
-    styles: {
-      fontSize: 10,
-      cellPadding: 5
-    },
-    columnStyles: {
-      0: { cellWidth: 25 },
-      1: { cellWidth: 25 },
-      2: { cellWidth: 35 },
-      3: { cellWidth: 35 },
-      4: { cellWidth: 35 },
-      5: { cellWidth: 20 },
-      6: { cellWidth: 15 }
-    },
-    didDrawPage: (data) => {
-      // Sayfa numarası
-      doc.setFontSize(10);
-      doc.text(
-        `Sayfa ${doc.internal.getCurrentPageInfo().pageNumber}/${doc.internal.getNumberOfPages()}`,
-        doc.internal.pageSize.width - 20,
-        doc.internal.pageSize.height - 10,
-        { align: 'right' }
-      );
+  headers.forEach((header, i) => {
+    doc.text(header, x, y);
+    x += columnWidths[i];
+  });
+  y += 5;
+
+  doc.line(margin, y, pageWidth - margin, y);
+  y += 5;
+
+  // Tehlikeler
+  assessment.hazards.forEach((hazard: Hazard) => {
+    if (y > doc.internal.pageSize.getHeight() - 30) {
+      doc.addPage();
+      y = margin;
     }
+
+    x = margin;
+    const riskLevelText = getRiskLevelText(hazard.riskScore);
+
+    doc.text(hazard.category, x, y, { maxWidth: columnWidths[0] - 5 });
+    x += columnWidths[0];
+
+    doc.text(hazard.description, x, y, { maxWidth: columnWidths[1] - 5 });
+    x += columnWidths[1];
+
+    doc.text(riskLevelText, x, y);
+    x += columnWidths[2];
+
+    const controlMeasures = hazard.controlMeasures.join(', ');
+    doc.text(controlMeasures, x, y, { maxWidth: columnWidths[3] - 5 });
+
+    y += 15;
   });
 
-  // Onay Bölümü
-  doc.addPage();
+  // İstatistikler
+  y += 10;
   doc.setFontSize(14);
-  doc.text('Onay', 20, 20);
-  doc.setFontSize(12);
-  doc.text('Hazırlayan:', 20, 40);
-  doc.line(20, 45, 100, 45);
-  doc.text('Kontrol Eden:', 20, 70);
-  doc.line(20, 75, 100, 75);
-  doc.text('Onaylayan:', 20, 100);
-  doc.line(20, 105, 100, 105);
+  doc.text('Risk Değerlendirmesi Özeti', margin, y);
+  y += 10;
+
+  doc.setFontSize(10);
+  const totalHazards = assessment.hazards.length;
+  const riskLevels = {
+    low: assessment.hazards.filter(h => h.riskScore === 'low').length,
+    medium: assessment.hazards.filter(h => h.riskScore === 'medium').length,
+    high: assessment.hazards.filter(h => h.riskScore === 'high').length,
+    critical: assessment.hazards.filter(h => h.riskScore === 'critical').length,
+  };
+
+  doc.text(`Toplam Tehlike Sayısı: ${totalHazards}`, margin, y);
+  y += 7;
+  doc.text(`Düşük Risk: ${riskLevels.low} (${((riskLevels.low / totalHazards) * 100).toFixed(1)}%)`, margin, y);
+  y += 7;
+  doc.text(`Orta Risk: ${riskLevels.medium} (${((riskLevels.medium / totalHazards) * 100).toFixed(1)}%)`, margin, y);
+  y += 7;
+  doc.text(`Yüksek Risk: ${riskLevels.high} (${((riskLevels.high / totalHazards) * 100).toFixed(1)}%)`, margin, y);
+  y += 7;
+  doc.text(`Kritik Risk: ${riskLevels.critical} (${((riskLevels.critical / totalHazards) * 100).toFixed(1)}%)`, margin, y);
 
   return doc;
 };

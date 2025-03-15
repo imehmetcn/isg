@@ -29,7 +29,7 @@ export interface RiskAssessment {
   reviewDate: Date;
   assessor: string;
   hazards: Hazard[];
-  status: 'draft' | 'pending' | 'approved' | 'archived';
+  status: 'draft' | 'completed' | 'archived';
 }
 
 export const getRiskLevel = (severity: Severity, probability: Probability): RiskLevel => {
