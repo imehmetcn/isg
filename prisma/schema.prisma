@@ -23,6 +23,7 @@ model User {
   sessions      Session[]
   company       Company?  @relation(fields: [companyId], references: [id])
   companyId     String?
+  companyUsers  CompanyUser[]
 }
 
 model Account {
@@ -62,7 +63,14 @@ model Company {
   logo      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  users     User[]
+  
+  users          User[]
+  companyUsers   CompanyUser[]
+  riskAssessments RiskAssessment[]
+  incidents      Incident[]
+  trainings      Training[]
+  inspections    Inspection[]
+  emergencyPlans EmergencyPlan[]
 }
 
 model CompanyUser {
