@@ -27,6 +27,7 @@ model User {
   company       Company?  @relation(fields: [companyId], references: [id])
   companyId     String?
   companyUsers  CompanyUser[]
+  createdDocuments Document[] @relation("CreatedDocuments")
 }
 
 model Account {
@@ -74,6 +75,7 @@ model Company {
   trainings      Training[]
   inspections    Inspection[]
   emergencyPlans EmergencyPlan[]
+  documents      Document[]
 }
 
 model CompanyUser {
@@ -169,6 +171,26 @@ model EmergencyPlan {
   updatedAt   DateTime @updatedAt
 }
 
+model Document {
+  id          String           @id @default(cuid())
+  title       String
+  description String?
+  category    DocumentCategory
+  filePath    String
+  fileSize    Int
+  fileType    String
+  version     Int             @default(1)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  createdBy   User           @relation("CreatedDocuments", fields: [userId], references: [id])
+  userId      String
+  company     Company?       @relation(fields: [companyId], references: [id])
+  companyId   String?
+  
+  @@index([userId])
+  @@index([companyId])
+}
+
 enum Role {
   USER
   ADMIN
@@ -195,4 +217,15 @@ enum IncidentType {
   ACCIDENT
   NEAR_MISS
   HAZARD_REPORT
+}
+
+enum DocumentCategory {
+  RISK_ASSESSMENT
+  EMERGENCY_PLAN
+  TRAINING
+  INSPECTION
+  HEALTH_SURVEILLANCE
+  ACCIDENT_REPORT
+  PROCEDURE
+  OTHER
 } 
