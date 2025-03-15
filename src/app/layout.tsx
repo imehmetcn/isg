@@ -20,9 +20,11 @@ export default function RootLayout({
     <html lang="tr">
       <body className={inter.className}>
         <div className="min-h-screen bg-gray-50">
-          <Header />
-          <Navbar />
-          <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          <div className="sticky top-0 z-50 bg-white">
+            <Header />
+            <Navbar />
+          </div>
+          <main className="pt-8 sm:pt-12">
             {children}
           </main>
         </div>
