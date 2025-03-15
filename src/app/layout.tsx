@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { Navbar } from '@/components/layout/Navbar'
-import { Footer } from '@/components/layout/Footer'
+import { NavBar } from '@/components/ui/tubelight-navbar'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -13,7 +12,7 @@ export const metadata: Metadata = {
     icon: [
       {
         url: '/favicon.svg',
-        type: 'image/svg+xml',
+        href: '/favicon.svg',
       },
     ],
   },
@@ -27,13 +26,10 @@ export default function RootLayout({
   return (
     <html lang="tr" className="h-full">
       <body className={inter.className}>
-        <div className="relative min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-          <Navbar />
-          <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-20 pb-16">
-            {children}
-          </main>
-          <Footer />
-        </div>
+        <NavBar />
+        <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-20 pb-16">
+          {children}
+        </main>
       </body>
     </html>
   )
