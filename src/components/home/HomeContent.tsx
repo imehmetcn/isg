@@ -1,11 +1,9 @@
 "use client";
 
-import { Stats } from "./Stats";
-
 export function HomeContent() {
   return (
-    <main>
-      <Stats />
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      {/* Ana sayfa içeriği buraya gelecek */}
     </main>
   );
 } 
