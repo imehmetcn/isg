@@ -17,14 +17,14 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="tr">
-      <body className={inter.className}>
-        <div className="min-h-screen bg-gray-50">
-          <div className="sticky top-0 z-50 bg-white">
+    <html lang="tr" className="h-full">
+      <body className={`${inter.className} h-full`}>
+        <div className="min-h-screen flex flex-col bg-gray-50">
+          <div className="sticky top-0 z-50 bg-white shadow-sm">
             <Header />
             <Navbar />
           </div>
-          <main className="pt-8 sm:pt-12">
+          <main className="flex-grow">
             {children}
           </main>
         </div>
