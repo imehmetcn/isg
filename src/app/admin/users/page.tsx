@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { exportUsersToExcel, parseExcelFile } from "@/lib/excel";
 
 interface User {
   id: string;
@@ -20,6 +21,10 @@ interface User {
   email: string;
   role: string;
   createdAt: string;
+  company?: {
+    id: string;
+    name: string;
+  };
 }
 
 export default function UsersPage() {
@@ -33,6 +38,7 @@ export default function UsersPage() {
     name: string;
   } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -82,6 +88,64 @@ export default function UsersPage() {
     }
   };
 
+  const handleExport = () => {
+    try {
+      const blob = exportUsersToExcel(
+        users.map((user) => ({
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          company: user.company?.name,
+        }))
+      );
+
+      // Dosyayı indir
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "kullanicilar.xlsx";
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error: any) {
+      toast.error("Excel dosyası oluşturulurken bir hata oluştu");
+    }
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const users = await parseExcelFile(file);
+
+      const response = await fetch("/api/users/bulk", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ users }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Kullanıcılar eklenirken bir hata oluştu");
+      }
+
+      toast.success(
+        `${data.users.length} kullanıcı başarıyla eklendi. Şifreleri email ile gönderilecek.`
+      );
+      fetchUsers();
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      // Input'u temizle
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -98,9 +162,25 @@ export default function UsersPage() {
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold">Kullanıcılar</h1>
-        <Button onClick={() => router.push("/admin/users/create")}>
-          Yeni Kullanıcı
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleExport}>Excel'e Aktar</Button>
+          <Button
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            Excel'den İçe Aktar
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx,.xls"
+            className="hidden"
+            onChange={handleImport}
+          />
+          <Button onClick={() => router.push("/admin/users/create")}>
+            Yeni Kullanıcı
+          </Button>
+        </div>
       </div>
 
       <div className="flex gap-4 mb-6">
