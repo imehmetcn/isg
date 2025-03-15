@@ -1,23 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { Plus } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface Document {
   id: string;
   title: string;
-  description: string | null;
-  category: string;
-  fileType: string;
-  version: number;
+  description: string;
+  fileUrl: string;
   createdAt: string;
-  createdBy: {
-    name: string;
-  };
 }
 
 export default function DocumentsPage() {
@@ -32,17 +33,36 @@ export default function DocumentsPage() {
   const fetchDocuments = async () => {
     try {
       const response = await fetch("/api/documents");
-      const data = await response.json();
-
+      
       if (!response.ok) {
-        throw new Error(data.error || "Dokümanlar yüklenirken bir hata oluştu");
+        throw new Error("Dokümanlar yüklenirken bir hata oluştu");
       }
 
-      setDocuments(data.documents);
+      const data = await response.json();
+      setDocuments(data);
     } catch (error: any) {
       console.error("Dokümanlar yüklenirken hata:", error);
+      toast.error(error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await fetch(`/api/documents/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Doküman silinirken bir hata oluştu");
+      }
+
+      toast.success("Doküman başarıyla silindi");
+      fetchDocuments();
+    } catch (error: any) {
+      console.error("Doküman silinirken hata:", error);
+      toast.error(error.message);
     }
   };
 
@@ -62,28 +82,34 @@ export default function DocumentsPage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {documents.map((doc) => (
-          <Card
-            key={doc.id}
-            className="cursor-pointer hover:bg-accent/50 transition-colors"
-            onClick={() => router.push(`/documents/${doc.id}`)}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium truncate">
-                {doc.title}
-              </CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
+          <Card key={doc.id}>
+            <CardHeader>
+              <CardTitle className="text-lg">{doc.title}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground line-clamp-2">
-                {doc.description || "Açıklama yok"}
+              <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                {doc.description}
               </p>
-              <div className="mt-4 flex justify-between text-xs text-muted-foreground">
-                <span>{doc.category}</span>
-                <span>v{doc.version}</span>
-              </div>
-              <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-                <span>{new Date(doc.createdAt).toLocaleDateString("tr-TR")}</span>
-                <span>{doc.createdBy.name}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">
+                  {new Date(doc.createdAt).toLocaleDateString("tr-TR")}
+                </span>
+                <div className="space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.open(doc.fileUrl, "_blank")}
+                  >
+                    Görüntüle
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(doc.id)}
+                  >
+                    Sil
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

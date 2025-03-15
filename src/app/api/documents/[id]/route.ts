@@ -1,42 +1,58 @@
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { getServerSession } from "next-auth"
+import { NextResponse } from "next/server"
+import { authOptions } from "@/lib/auth"
 
 export async function DELETE(
-  req: Request,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions)
-
     if (!session?.user) {
-      return new NextResponse("Unauthorized", { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
+      include: { company: true },
+    })
+
+    if (!user?.companyId) {
+      return NextResponse.json(
+        { error: "Company not found" },
+        { status: 404 }
+      )
     }
 
     const document = await db.document.findUnique({
-      where: {
-        id: params.id,
-      },
+      where: { id: params.id },
     })
 
     if (!document) {
-      return new NextResponse("Document not found", { status: 404 })
+      return NextResponse.json(
+        { error: "Document not found" },
+        { status: 404 }
+      )
     }
 
-    if (document.companyId !== session.user.companyId) {
-      return new NextResponse("Unauthorized", { status: 401 })
+    if (document.companyId !== user.companyId) {
+      return NextResponse.json(
+        { error: "You don't have permission to delete this document" },
+        { status: 403 }
+      )
     }
 
     await db.document.delete({
-      where: {
-        id: params.id,
-      },
+      where: { id: params.id },
     })
 
-    return new NextResponse(null, { status: 204 })
+    return NextResponse.json({ message: "Document deleted successfully" })
   } catch (error) {
-    console.error("[DOCUMENT_DELETE]", error)
-    return new NextResponse("Internal Error", { status: 500 })
+    console.error("Error deleting document:", error)
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    )
   }
 } 

@@ -1,44 +1,68 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
+import { authOptions } from "@/lib/auth";
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-
     if (!session?.user) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
+      include: { company: true },
+    });
+
+    if (!user?.companyId) {
+      return NextResponse.json(
+        { error: "Company not found" },
+        { status: 404 }
+      );
     }
 
     const documents = await db.document.findMany({
-      where: {
-        companyId: session.user.companyId,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
+      where: { companyId: user.companyId },
+      orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json(documents);
   } catch (error) {
-    console.error("[DOCUMENTS_GET]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.error("Error fetching documents:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-
     if (!session?.user) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { title, description, fileUrl } = await req.json();
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
+      include: { company: true },
+    });
+
+    if (!user?.companyId) {
+      return NextResponse.json(
+        { error: "Company not found" },
+        { status: 404 }
+      );
+    }
+
+    const { title, description, fileUrl } = await request.json();
 
     if (!title || !description || !fileUrl) {
-      return new NextResponse("Missing required fields", { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
     const document = await db.document.create({
@@ -47,13 +71,16 @@ export async function POST(req: Request) {
         description,
         fileUrl,
         userId: session.user.id,
-        companyId: session.user.companyId,
+        companyId: user.companyId,
       },
     });
 
     return NextResponse.json(document);
   } catch (error) {
-    console.error("[DOCUMENTS_POST]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.error("Error creating document:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 } 
