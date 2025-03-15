@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
-import { LucideIcon, Bell, Settings, User, Menu, X } from "lucide-react"
+import { LucideIcon, Bell, Settings, User, Menu, X, AlertTriangle, Activity, GraduationCap, ClipboardCheck, Siren } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useScroll } from "@/hooks/use-scroll"
 import { usePathname } from "next/navigation"
@@ -13,22 +13,27 @@ const navigationItems = [
   {
     name: "Risk Değerlendirme",
     href: "/features/risk-degerlendirme",
+    icon: AlertTriangle
   },
   {
     name: "Olay Takibi",
     href: "/features/olay-takibi",
+    icon: Activity
   },
   {
     name: "Eğitim Yönetimi",
     href: "/features/egitim-yonetimi",
+    icon: GraduationCap
   },
   {
     name: "Denetim ve Kontrol",
     href: "/features/denetim-ve-kontrol",
+    icon: ClipboardCheck
   },
   {
     name: "Acil Durum",
     href: "/features/acil-durum-ve-eylem-plani",
+    icon: Siren
   },
 ]
 
@@ -107,18 +112,20 @@ export function NavBar({ className }: NavBarProps) {
             )}>
               {navigationItems.map((item) => {
                 const isActive = pathname === item.href
+                const Icon = item.icon
 
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "relative px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200",
+                      "relative px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 flex items-center gap-2",
                       isActive
                         ? "text-blue-600 dark:text-blue-500 bg-white dark:bg-gray-800 shadow-sm"
                         : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500 hover:bg-white/50 dark:hover:bg-gray-800/50"
                     )}
                   >
+                    <Icon className="w-4 h-4" />
                     {item.name}
                   </Link>
                 )
@@ -169,6 +176,7 @@ export function NavBar({ className }: NavBarProps) {
             <div className="px-4 py-2 space-y-1">
               {navigationItems.map((item) => {
                 const isActive = pathname === item.href
+                const Icon = item.icon
 
                 return (
                   <Link
@@ -182,6 +190,7 @@ export function NavBar({ className }: NavBarProps) {
                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900"
                     )}
                   >
+                    <Icon className="w-5 h-5" />
                     <span>{item.name}</span>
                   </Link>
                 )
