@@ -1,6 +1,6 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { db } from "@/lib/db"
+import { db } from "./db"
 import bcrypt from "bcryptjs"
 import { Role } from "@prisma/client"
 
@@ -20,7 +20,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null
+          return null;
         }
 
         const user = await db.user.findUnique({
@@ -30,57 +30,44 @@ export const authOptions: NextAuthOptions = {
         })
 
         if (!user) {
-          return null
+          return null;
         }
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
-          user.password
+          user.password!
         )
 
         if (!isPasswordValid) {
-          return null
+          return null;
         }
 
         return {
           id: user.id,
           email: user.email,
-          name: user.name || "",
+          name: user.name || "User",
           role: user.role,
         }
       },
     }),
   ],
   callbacks: {
-    async session({ token, session }) {
-      if (token) {
-        session.user.id = token.id as string
-        session.user.name = token.name as string
-        session.user.email = token.email as string
-        session.user.role = token.role as Role
-      }
-
-      return session
-    },
     async jwt({ token, user }) {
-      const dbUser = await db.user.findFirst({
-        where: {
-          email: token.email!,
-        },
-      })
-
-      if (!dbUser) {
-        if (user) {
-          token.id = user.id
+      if (user) {
+        return {
+          ...token,
+          role: user.role,
         }
-        return token
       }
-
+      return token
+    },
+    async session({ session, token }) {
       return {
-        id: dbUser.id,
-        name: dbUser.name || "",
-        email: dbUser.email,
-        role: dbUser.role,
+        ...session,
+        user: {
+          ...session.user,
+          role: token.role,
+        },
       }
     },
   },
