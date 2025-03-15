@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { db } from "./db"
 import bcrypt from "bcryptjs"
 import { Role } from "@prisma/client"
+import { RequestInternal } from "next-auth"
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -18,7 +19,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {
+      async authorize(credentials, req: Pick<RequestInternal, "query" | "body" | "headers" | "method">) {
         try {
           if (!credentials?.email || !credentials?.password) {
             console.log("Missing credentials");
