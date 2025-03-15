@@ -3,7 +3,7 @@ import { db } from "@/lib/db"
 import bcrypt from "bcryptjs"
 import { Role } from "@prisma/client"
 
-export async function POST(req: Request) {
+export async function POST(req) {
   try {
     const { name, email, password } = await req.json()
 
