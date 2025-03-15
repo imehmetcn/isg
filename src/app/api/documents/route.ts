@@ -3,34 +3,24 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session) {
+    if (!session?.user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
     const documents = await db.document.findMany({
       where: {
-        OR: [
-          { userId: session.user.id },
-          { companyId: session.user.companyId },
-        ],
-      },
-      include: {
-        createdBy: {
-          select: {
-            name: true,
-          },
-        },
+        companyId: session.user.companyId,
       },
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    return NextResponse.json({ documents });
+    return NextResponse.json(documents);
   } catch (error) {
     console.error("[DOCUMENTS_GET]", error);
     return new NextResponse("Internal Error", { status: 500 });
@@ -41,14 +31,13 @@ export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session) {
+    if (!session?.user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const body = await req.json();
-    const { title, description, category, filePath, fileSize, fileType } = body;
+    const { title, description, fileUrl } = await req.json();
 
-    if (!title || !category || !filePath || !fileSize || !fileType) {
+    if (!title || !description || !fileUrl) {
       return new NextResponse("Missing required fields", { status: 400 });
     }
 
@@ -56,10 +45,7 @@ export async function POST(req: Request) {
       data: {
         title,
         description,
-        category,
-        filePath,
-        fileSize,
-        fileType,
+        fileUrl,
         userId: session.user.id,
         companyId: session.user.companyId,
       },

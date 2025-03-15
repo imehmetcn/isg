@@ -1,4 +1,6 @@
-// This is your Prisma schema file
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
   previewFeatures = ["referentialIntegrity"]
@@ -7,27 +9,28 @@ generator client {
 datasource db {
   provider = "postgresql"
   url = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
   relationMode = "prisma"
 }
 
 model User {
   id            String    @id @default(cuid())
   name          String?
-  email         String    @unique
-  password      String
+  email         String?   @unique
   emailVerified DateTime?
   image         String?
+  password      String?
   role          Role      @default(USER)
+  companyId     String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   accounts      Account[]
   sessions      Session[]
-  company       Company?  @relation(fields: [companyId], references: [id])
-  companyId     String?
+  company       Company?       @relation(fields: [companyId], references: [id])
   companyUsers  CompanyUser[]
-  createdDocuments Document[] @relation("CreatedDocuments")
+  documents     Document[]
+
+  @@index([companyId])
 }
 
 model Account {
@@ -172,21 +175,18 @@ model EmergencyPlan {
 }
 
 model Document {
-  id          String           @id @default(cuid())
+  id          String   @id @default(cuid())
   title       String
-  description String?
-  category    DocumentCategory
-  filePath    String
-  fileSize    Int
-  fileType    String
-  version     Int             @default(1)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  createdBy   User           @relation("CreatedDocuments", fields: [userId], references: [id])
+  description String
+  fileUrl     String
   userId      String
-  company     Company?       @relation(fields: [companyId], references: [id])
-  companyId   String?
-  
+  companyId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@index([companyId])
 }
