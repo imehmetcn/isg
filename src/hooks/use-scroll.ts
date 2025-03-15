@@ -11,16 +11,16 @@ export function useScroll(threshold = 0) {
     const handleScroll = () => {
       const currentScrollY = window.scrollY
 
-      if (currentScrollY > threshold) {
-        setScrolled(true)
-      } else {
-        setScrolled(false)
-      }
-
       if (currentScrollY > lastScrollY) {
         setScrollDirection("down")
       } else {
         setScrollDirection("up")
+      }
+
+      if (currentScrollY > threshold) {
+        setScrolled(true)
+      } else {
+        setScrolled(false)
       }
 
       setLastScrollY(currentScrollY)

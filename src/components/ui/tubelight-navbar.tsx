@@ -7,6 +7,7 @@ import Image from "next/image"
 import { LucideIcon, Bell, Settings, User, Menu, X, Home, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useScroll } from "@/hooks/use-scroll"
+import { usePathname } from "next/navigation"
 
 interface NavItem {
   name: string
@@ -18,6 +19,29 @@ interface NavBarProps {
   items?: NavItem[]
   className?: string
 }
+
+const navigationItems = [
+  {
+    name: "Risk Değerlendirme",
+    href: "/features/risk-degerlendirme",
+  },
+  {
+    name: "Olay Takibi",
+    href: "/features/olay-takibi",
+  },
+  {
+    name: "Eğitim Yönetimi",
+    href: "/features/egitim-yonetimi",
+  },
+  {
+    name: "Denetim ve Kontrol",
+    href: "/features/denetim-ve-kontrol",
+  },
+  {
+    name: "Acil Durum",
+    href: "/features/acil-durum-ve-eylem-plani",
+  },
+]
 
 export function NavBar({ items = [], className }: NavBarProps) {
   const defaultItems = [
@@ -39,6 +63,7 @@ export function NavBar({ items = [], className }: NavBarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [notifications] = useState(3) // Örnek bildirim sayısı
   const { scrolled, scrollDirection } = useScroll(10)
+  const pathname = usePathname()
 
   useEffect(() => {
     const handleResize = () => {
