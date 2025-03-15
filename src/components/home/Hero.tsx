@@ -12,7 +12,7 @@ const fadeInUp = {
 
 export function Hero() {
   return (
-    <section className="relative isolate">
+    <section className="relative isolate overflow-hidden">
       {/* Background gradient */}
       <div
         className="absolute inset-x-0 top-[-10rem] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[-20rem]"
