@@ -1,11 +1,14 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import bcrypt from "bcryptjs"
 import { Role } from "@prisma/client"
 
-export async function POST(req) {
+export const dynamic = 'force-dynamic'
+
+export async function POST(request: NextRequest) {
   try {
-    const { name, email, password } = await req.json()
+    const body = await request.json()
+    const { name, email, password } = body
 
     if (!name || !email || !password) {
       return NextResponse.json(
