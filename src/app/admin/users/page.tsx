@@ -150,7 +150,7 @@ export default function UsersPage() {
     const matchesSearch =
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = !roleFilter || user.role === roleFilter;
+    const matchesRole = roleFilter === "ALL" || !roleFilter || user.role === roleFilter;
     return matchesSearch && matchesRole;
   });
 
@@ -197,7 +197,7 @@ export default function UsersPage() {
               <SelectValue placeholder="Rol seç" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tümü</SelectItem>
+              <SelectItem value="ALL">Tümü</SelectItem>
               <SelectItem value="USER">Kullanıcı</SelectItem>
               <SelectItem value="ADMIN">Admin</SelectItem>
             </SelectContent>

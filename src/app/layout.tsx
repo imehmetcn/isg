@@ -10,19 +10,8 @@ export const metadata: Metadata = {
   title: 'İSG Yönetim Sistemi',
   description: 'İş Sağlığı ve Güvenliği Yönetim Sistemi',
   icons: {
-    icon: [
-      {
-        media: '(prefers-color-scheme: light)',
-        url: '/favicon.svg',
-        href: '/favicon.svg',
-      },
-      {
-        media: '(prefers-color-scheme: dark)',
-        url: '/favicon.svg',
-        href: '/favicon.svg',
-      },
-    ],
-  },
+    icon: '/favicon.ico'
+  }
 }
 
 export default function RootLayout({
