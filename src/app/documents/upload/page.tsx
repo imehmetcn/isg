@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { UploadDropzone } from "@uploadthing/react";
 import { toast } from "sonner";
-import type { OurFileRouter } from "@/lib/uploadthing";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
 
 export default function UploadDocumentPage() {
   const router = useRouter();
@@ -86,18 +86,20 @@ export default function UploadDocumentPage() {
           </div>
           <div className="space-y-2">
             <Label>Dosya</Label>
-            <UploadDropzone
-              endpoint="documentUploader"
-              onClientUploadComplete={(res) => {
-                if (res?.[0]) {
-                  setFileUrl(res[0].url);
-                  toast.success("Dosya başarıyla yüklendi");
-                }
-              }}
-              onUploadError={(error: Error) => {
-                toast.error(`Dosya yüklenirken bir hata oluştu: ${error.message}`);
-              }}
-            />
+            <div className="mt-4">
+              <UploadDropzone<OurFileRouter, "documentUploader">
+                endpoint="documentUploader"
+                onClientUploadComplete={(res) => {
+                  if (res && res[0]) {
+                    setFileUrl(res[0].url);
+                    toast.success("Dosya yüklendi!");
+                  }
+                }}
+                onUploadError={(error: Error) => {
+                  toast.error(`Dosya yüklenirken hata oluştu: ${error.message}`);
+                }}
+              />
+            </div>
           </div>
           <Button type="submit" disabled={isLoading}>
             {isLoading ? "Yükleniyor..." : "Yükle"}
