@@ -101,7 +101,10 @@ export function NavBar({ className }: NavBarProps) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center justify-center flex-1 px-8">
-            <div className="flex items-center -space-x-3">
+            <div className={cn(
+              "flex items-center space-x-1 bg-gray-100/50 dark:bg-gray-900/50 px-3 py-1.5 rounded-full",
+              scrolled ? "bg-gray-100/50 dark:bg-gray-900/50" : "bg-gray-100 dark:bg-gray-900"
+            )}>
               {navigationItems.map((item) => {
                 const isActive = pathname === item.href
 
@@ -110,19 +113,13 @@ export function NavBar({ className }: NavBarProps) {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "relative flex items-center px-3 py-2 text-sm font-medium transition-colors",
+                      "relative px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200",
                       isActive
-                        ? "text-blue-600 dark:text-blue-500"
-                        : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500"
+                        ? "text-blue-600 dark:text-blue-500 bg-white dark:bg-gray-800 shadow-sm"
+                        : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500 hover:bg-white/50 dark:hover:bg-gray-800/50"
                     )}
                   >
                     {item.name}
-                    {isActive && (
-                      <motion.div
-                        layoutId="navbar-active"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-500"
-                      />
-                    )}
                   </Link>
                 )
               })}
@@ -145,12 +142,6 @@ export function NavBar({ className }: NavBarProps) {
             <button className="p-2 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
               <User className="w-5 h-5" />
             </button>
-            <Link
-              href="/risk-assessment"
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring bg-blue-600 text-white shadow hover:bg-blue-500 h-9 px-4"
-            >
-              Hemen Başla
-            </Link>
           </div>
 
           {/* Mobile Menu Button */}
