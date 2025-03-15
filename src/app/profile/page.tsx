@@ -17,8 +17,11 @@ interface Profile {
   } | null;
 }
 
+// Sayfayı dinamik olarak işaretle
+export const dynamic = 'force-dynamic'
+
 export default function ProfilePage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -32,8 +35,10 @@ export default function ProfilePage() {
   useEffect(() => {
     if (session?.user?.id) {
       fetchProfile();
+    } else if (status === 'unauthenticated') {
+      window.location.href = '/auth/login';
     }
-  }, [session]);
+  }, [session, status]);
 
   const fetchProfile = async () => {
     try {
@@ -113,7 +118,7 @@ export default function ProfilePage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  if (loading) {
+  if (status === 'loading' || loading) {
     return <div>Yükleniyor...</div>;
   }
 

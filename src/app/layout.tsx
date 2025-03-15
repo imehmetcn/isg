@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import './globals.css'
 import { NavBar } from '@/components/ui/tubelight-navbar'
 import { Toaster } from "sonner"
+import AuthProvider from '@/providers/session-provider'
 
 export const metadata: Metadata = {
   title: 'İSG Yönetim Sistemi',
@@ -37,11 +38,13 @@ export default function RootLayout({
           GeistSans.variable
         )}
       >
-        <NavBar />
-        <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-20 pb-16">
-          {children}
-        </main>
-        <Toaster />
+        <AuthProvider>
+          <NavBar />
+          <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-20 pb-16">
+            {children}
+          </main>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   )

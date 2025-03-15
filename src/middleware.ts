@@ -1,37 +1,30 @@
-import { getToken } from "next-auth/jwt";
+import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request });
-  
-  // Admin sayfalarına erişim kontrolü
-  if (request.nextUrl.pathname.startsWith("/admin")) {
-    if (!token) {
-      // Kullanıcı giriş yapmamışsa login sayfasına yönlendir
-      return NextResponse.redirect(new URL("/login", request.url));
+export default withAuth(
+  function middleware(req) {
+    // Profil sayfası kontrolü
+    if (req.nextUrl.pathname.startsWith("/profile")) {
+      return NextResponse.next();
     }
 
-    if (token.role !== "ADMIN") {
-      // Kullanıcı admin değilse ana sayfaya yönlendir
-      return NextResponse.redirect(new URL("/", request.url));
+    // Admin sayfaları kontrolü
+    if (
+      req.nextUrl.pathname.startsWith("/admin") &&
+      req.nextauth.token?.role !== "ADMIN"
+    ) {
+      return NextResponse.redirect(new URL("/", req.url));
     }
+
+    return NextResponse.next();
+  },
+  {
+    callbacks: {
+      authorized: ({ token }) => !!token,
+    },
   }
-
-  // Login sayfasına erişim kontrolü
-  if (request.nextUrl.pathname === "/login" && token) {
-    // Kullanıcı zaten giriş yapmışsa
-    if (token.role === "ADMIN") {
-      // Admin ise admin paneline yönlendir
-      return NextResponse.redirect(new URL("/admin", request.url));
-    }
-    // Normal kullanıcı ise ana sayfaya yönlendir
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-
-  return NextResponse.next();
-}
+);
 
 export const config = {
-  matcher: ["/admin/:path*", "/login"],
+  matcher: ["/profile/:path*", "/admin/:path*"],
 }; 
