@@ -1,11 +1,11 @@
 // This is your Prisma schema file
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-generator client {
-  provider = "prisma-client-js"
 }
 
 model User {
@@ -13,26 +13,56 @@ model User {
   name          String?
   email         String    @unique
   password      String
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(USER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  role          Role      @default(SAFETY_EXPERT)
-  companies     CompanyUser[]
+
+  accounts      Account[]
+  sessions      Session[]
+  company       Company?  @relation(fields: [companyId], references: [id])
+  companyId     String?
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Company {
-  id            String    @id @default(cuid())
-  name          String
-  address       String?
-  phone         String?
-  email         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  users         CompanyUser[]
-  riskAssessments RiskAssessment[]
-  incidents     Incident[]
-  trainings     Training[]
-  inspections   Inspection[]
-  emergencyPlans EmergencyPlan[]
+  id        String   @id @default(cuid())
+  name      String
+  address   String?
+  phone     String?
+  email     String?
+  website   String?
+  logo      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     User[]
 }
 
 model CompanyUser {
@@ -129,8 +159,9 @@ model EmergencyPlan {
 }
 
 enum Role {
-  SAFETY_EXPERT
+  USER
   ADMIN
+  SUPER_ADMIN
 }
 
 enum Status {
