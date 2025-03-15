@@ -10,7 +10,12 @@ export const metadata: Metadata = {
   title: 'İSG Yönetim Sistemi',
   description: 'İş Sağlığı ve Güvenliği Yönetim Sistemi',
   icons: {
-    icon: '/favicon.ico'
+    icon: [
+      {
+        url: '/favicon.svg',
+        type: 'image/svg+xml',
+      }
+    ]
   }
 }
 
