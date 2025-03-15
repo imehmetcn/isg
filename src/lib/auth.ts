@@ -16,37 +16,48 @@ export const authOptions: NextAuthOptions = {
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            console.log("Missing credentials");
+            return null;
+          }
+
+          const user = await db.user.findUnique({
+            where: {
+              email: credentials.email,
+            },
+          });
+
+          if (!user || !user.password) {
+            console.log("User not found or no password");
+            return null;
+          }
+
+          console.log("Found user:", { email: user.email, role: user.role });
+
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
+
+          console.log("Password valid:", isPasswordValid);
+
+          if (!isPasswordValid) {
+            return null;
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name || "User",
+            role: user.role,
+          };
+        } catch (error) {
+          console.error("Auth error:", error);
           return null;
-        }
-
-        const user = await db.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
-        })
-
-        if (!user) {
-          return null;
-        }
-
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password!
-        )
-
-        if (!isPasswordValid) {
-          return null;
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name || "User",
-          role: user.role,
         }
       },
     }),
@@ -54,21 +65,18 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        return {
-          ...token,
-          role: user.role,
-        }
+        token.role = user.role;
+        token.id = user.id;
       }
-      return token
+      return token;
     },
     async session({ session, token }) {
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          role: token.role,
-        },
+      if (token) {
+        session.user.role = token.role as Role;
+        session.user.id = token.id as string;
       }
+      return session;
     },
   },
+  debug: true, // Hata ayıklama için logları açıyoruz
 } 
