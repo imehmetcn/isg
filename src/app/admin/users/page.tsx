@@ -1,17 +1,18 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { DeleteUserModal } from "@/components/modals/delete-user-modal";
+import { Input } from "@/components/ui/input";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface User {
   id: string;
@@ -25,91 +26,144 @@ export default function UsersPage() {
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
+  const [deleteUser, setDeleteUser] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Kullanıcıları getir
-  async function fetchUsers() {
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
     try {
       const response = await fetch("/api/users");
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || "Kullanıcılar yüklenirken bir hata oluştu");
       }
 
       setUsers(data.users);
-    } catch (err) {
-      setError("Kullanıcılar yüklenirken bir hata oluştu");
-      console.error(err);
+    } catch (error: any) {
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteUser) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/users/${deleteUser.id}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Kullanıcı silinirken bir hata oluştu");
+      }
+
+      toast.success("Kullanıcı başarıyla silindi");
+      setUsers((prevUsers) =>
+        prevUsers.filter((user) => user.id !== deleteUser.id)
+      );
+      setDeleteUser(null);
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole = !roleFilter || user.role === roleFilter;
+    return matchesSearch && matchesRole;
+  });
+
+  if (loading) {
+    return <div>Yükleniyor...</div>;
   }
 
-  // Component yüklendiğinde kullanıcıları getir
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Kullanıcı Yönetimi</h1>
+    <div className="container mx-auto py-10">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-bold">Kullanıcılar</h1>
         <Button onClick={() => router.push("/admin/users/create")}>
-          Yeni Kullanıcı Ekle
+          Yeni Kullanıcı
         </Button>
       </div>
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      <div className="bg-card rounded-lg shadow">
-        <div className="p-4">
+      <div className="flex gap-4 mb-6">
+        <div className="flex-1">
           <Input
-            placeholder="Kullanıcı ara..."
-            className="max-w-sm"
-            onChange={(e) => {
-              // TODO: Implement search
-            }}
+            placeholder="İsim veya email ile ara..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        <div className="w-48">
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Rol seç" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Tümü</SelectItem>
+              <SelectItem value="USER">Kullanıcı</SelectItem>
+              <SelectItem value="ADMIN">Admin</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>İsim</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Rol</TableHead>
-              <TableHead>Kayıt Tarihi</TableHead>
-              <TableHead>İşlemler</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                  Yükleniyor...
-                </TableCell>
-              </TableRow>
-            ) : users.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                  Henüz kullanıcı bulunmuyor.
-                </TableCell>
-              </TableRow>
-            ) : (
-              users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.role}</TableCell>
-                  <TableCell>
-                    {new Date(user.createdAt).toLocaleDateString("tr-TR")}
-                  </TableCell>
-                  <TableCell>
+      <div className="rounded-md border">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b bg-muted/50">
+              <th className="h-12 px-4 text-left align-middle font-medium">
+                Ad Soyad
+              </th>
+              <th className="h-12 px-4 text-left align-middle font-medium">
+                Email
+              </th>
+              <th className="h-12 px-4 text-left align-middle font-medium">
+                Rol
+              </th>
+              <th className="h-12 px-4 text-left align-middle font-medium">
+                Kayıt Tarihi
+              </th>
+              <th className="h-12 px-4 text-left align-middle font-medium">
+                İşlemler
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredUsers.map((user) => (
+              <tr key={user.id} className="border-b">
+                <td className="p-4">{user.name}</td>
+                <td className="p-4">{user.email}</td>
+                <td className="p-4">{user.role}</td>
+                <td className="p-4">
+                  {new Date(user.createdAt).toLocaleDateString("tr-TR")}
+                </td>
+                <td className="p-4">
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push(`/admin/users/${user.id}`)}
+                    >
+                      Detay
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
@@ -117,13 +171,30 @@ export default function UsersPage() {
                     >
                       Düzenle
                     </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() =>
+                        setDeleteUser({ id: user.id, name: user.name })
+                      }
+                    >
+                      Sil
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
+
+      <DeleteUserModal
+        isOpen={!!deleteUser}
+        onClose={() => setDeleteUser(null)}
+        onConfirm={handleDelete}
+        userName={deleteUser?.name || ""}
+        loading={isDeleting}
+      />
     </div>
   );
 } 
