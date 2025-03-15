@@ -85,7 +85,7 @@ export function NavBar({ items, className }: NavBarProps) {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center justify-center flex-1 px-8">
             <div className={cn(
-              "flex items-center gap-1 px-2 py-1.5 rounded-full transition-all duration-200",
+              "flex items-center -space-x-3 px-2 py-1.5 rounded-full transition-all duration-200",
               scrolled
                 ? "bg-gray-100/50 dark:bg-gray-900/50"
                 : "bg-gray-100 dark:bg-gray-900"
