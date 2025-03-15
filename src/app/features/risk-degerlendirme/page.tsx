@@ -45,17 +45,17 @@ export default function RiskDegerlendirme() {
               className="flex gap-4"
             >
               <Link 
-                href="/demo"
+                href="/risk-assessment"
                 className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
               >
-                Demo İncele
+                Hemen Başla
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
-                href="/contact"
+                href="/"
                 className="bg-white text-blue-600 border-2 border-blue-600 px-8 py-4 rounded-lg hover:bg-blue-50 transition"
               >
-                İletişime Geçin
+                Daha Fazla Bilgi
               </Link>
             </motion.div>
           </div>

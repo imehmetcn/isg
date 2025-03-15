@@ -54,25 +54,20 @@ export function Hero() {
               takibine, denetimlerden raporlamalara kadar her şey kontrolünüz altında.
             </motion.p>
 
-            <motion.div
-              {...fadeInUp}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="mt-10 flex items-center justify-center gap-x-6"
-            >
+            <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link
-                href="/demo"
-                className="rounded-md bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 flex items-center"
+                href="/risk-assessment"
+                className="rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
-                Demo İncele
-                <ArrowRight className="ml-2 h-4 w-4" />
+                Hemen Başla
               </Link>
               <Link
-                href="/contact"
-                className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-600"
+                href="/"
+                className="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-100"
               >
-                Bizimle İletişime Geçin <span aria-hidden="true">→</span>
+                Daha Fazla Bilgi <span aria-hidden="true">→</span>
               </Link>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
