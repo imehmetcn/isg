@@ -50,6 +50,11 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
+          if (!user.email) {
+            console.log("User email is null");
+            return null;
+          }
+
           return {
             id: user.id,
             email: user.email,
