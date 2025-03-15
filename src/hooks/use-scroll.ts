@@ -1,6 +1,8 @@
+"use client";
+
 import { useState, useEffect } from "react"
 
-export function useScroll(threshold = 10) {
+export function useScroll(threshold = 0) {
   const [scrolled, setScrolled] = useState(false)
   const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up")
   const [lastScrollY, setLastScrollY] = useState(0)
@@ -9,18 +11,16 @@ export function useScroll(threshold = 10) {
     const handleScroll = () => {
       const currentScrollY = window.scrollY
 
-      // Scroll yönünü belirle
-      if (currentScrollY > lastScrollY) {
-        setScrollDirection("down")
-      } else if (currentScrollY < lastScrollY) {
-        setScrollDirection("up")
-      }
-
-      // Scroll durumunu güncelle
       if (currentScrollY > threshold) {
         setScrolled(true)
       } else {
         setScrolled(false)
+      }
+
+      if (currentScrollY > lastScrollY) {
+        setScrollDirection("down")
+      } else {
+        setScrollDirection("up")
       }
 
       setLastScrollY(currentScrollY)

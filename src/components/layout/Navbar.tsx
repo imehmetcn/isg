@@ -38,6 +38,8 @@ const menuItems = [
 
 export function Navbar() {
   return (
-    <NavBar items={menuItems} className="sm:relative sm:mb-6" />
+    <div className="fixed top-0 left-0 right-0 z-50">
+      <NavBar items={menuItems} />
+    </div>
   );
 } 
