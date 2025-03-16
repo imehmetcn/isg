@@ -47,7 +47,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <SessionProvider session={session}>
-            {/* {session && <AnimeNavBarDemo />} */}
+            {/* Navbar artık (main) layout içinde tanımlandı */}
             <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
             <div className="min-h-screen flex flex-col">
               {children}

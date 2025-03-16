@@ -1,4 +1,4 @@
-import { NavBar } from "@/components/ui/tubelight-navbar";
+// import { NavBar } from "@/components/ui/tubelight-navbar";
 
 export default function MainLayout({
   children,
@@ -7,8 +7,8 @@ export default function MainLayout({
 }) {
   return (
     <>
-      <NavBar />
-      <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-20 pb-16">
+      {/* NavBar kaldırıldı */}
+      <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full py-16">
         {children}
       </main>
     </>
