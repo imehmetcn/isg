@@ -1,9 +1,9 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, memo } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Menu, X, User, LogOut, Settings } from "lucide-react"
+import { Menu, X, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
@@ -11,7 +11,71 @@ import { signOut, useSession } from "next-auth/react"
 // Hızlı erişim menüsü kaldırıldı
 const navigationItems = []
 
-export function NavBar({ className }: { className?: string }) {
+// Logo bileşenini memoize et
+const Logo = memo(() => (
+  <Link href="/" className="flex items-center">
+    <Image
+      src="/logo.svg"
+      alt="İSG Yönetim"
+      width={32}
+      height={32}
+      className="mr-2"
+      priority
+    />
+    <span className="text-xl font-bold text-blue-600">İSG Yönetim</span>
+  </Link>
+));
+
+// UserMenu bileşenini ayrı bir bileşen olarak tanımla
+const UserMenu = memo(({ session, isUserMenuOpen, setIsUserMenuOpen }: {
+  session: any;
+  isUserMenuOpen: boolean;
+  setIsUserMenuOpen: (value: boolean) => void;
+}) => {
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+        className="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+      >
+        <span className="sr-only">Kullanıcı menüsünü aç</span>
+        <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+          {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : <User className="h-5 w-5" />}
+        </div>
+      </button>
+
+      {isUserMenuOpen && (
+        <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+          <div className="px-4 py-2 text-xs text-gray-500 border-b border-gray-100">
+            {session?.user?.email}
+          </div>
+          <Link
+            href="/profile"
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            onClick={() => setIsUserMenuOpen(false)}
+          >
+            Profil
+          </Link>
+          <Link
+            href="/settings"
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            onClick={() => setIsUserMenuOpen(false)}
+          >
+            Ayarlar
+          </Link>
+          <button
+            onClick={() => signOut({ callbackUrl: '/' })}
+            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+          >
+            Çıkış Yap
+          </button>
+        </div>
+      )}
+    </div>
+  );
+});
+
+export const NavBar = memo(function NavBar({ className }: { className?: string }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const pathname = usePathname()
@@ -20,21 +84,12 @@ export function NavBar({ className }: { className?: string }) {
   const isAdmin = session?.user?.role === "ADMIN"
 
   return (
-    <nav className={cn("bg-white shadow-sm", className)}>
+    <nav className={cn("bg-white shadow-sm sticky top-0 z-40", className)}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="flex items-center">
-                <Image
-                  src="/logo.svg"
-                  alt="İSG Yönetim"
-                  width={32}
-                  height={32}
-                  className="mr-2"
-                />
-                <span className="text-xl font-bold text-blue-600">İSG Yönetim</span>
-              </Link>
+              <Logo />
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               {/* Hızlı erişim menüsü kaldırıldı */}
@@ -56,45 +111,11 @@ export function NavBar({ className }: { className?: string }) {
           </div>
           
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            <div className="relative">
-              <button
-                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <span className="sr-only">Kullanıcı menüsünü aç</span>
-                <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                  {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : <User className="h-5 w-5" />}
-                </div>
-              </button>
-
-              {isUserMenuOpen && (
-                <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
-                  <div className="px-4 py-2 text-xs text-gray-500 border-b border-gray-100">
-                    {session?.user?.email}
-                  </div>
-                  <Link
-                    href="/profile"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setIsUserMenuOpen(false)}
-                  >
-                    Profil
-                  </Link>
-                  <Link
-                    href="/settings"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setIsUserMenuOpen(false)}
-                  >
-                    Ayarlar
-                  </Link>
-                  <button
-                    onClick={() => signOut({ callbackUrl: '/' })}
-                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                  >
-                    Çıkış Yap
-                  </button>
-                </div>
-              )}
-            </div>
+            <UserMenu 
+              session={session} 
+              isUserMenuOpen={isUserMenuOpen} 
+              setIsUserMenuOpen={setIsUserMenuOpen} 
+            />
           </div>
           
           <div className="flex items-center sm:hidden">
@@ -173,4 +194,4 @@ export function NavBar({ className }: { className?: string }) {
       )}
     </nav>
   )
-} 
+}) 
