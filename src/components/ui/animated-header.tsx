@@ -50,7 +50,7 @@ export function AnimatedHeader({ className }: { className?: string }) {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, type: "spring", stiffness: 120 }}
       className={cn(
-        "fixed w-full z-50 transition-all duration-300",
+        "fixed w-full z-50 transition-all duration-300 top-0",
         scrolled
           ? "bg-white/80 backdrop-blur-md shadow-lg"
           : "bg-white shadow-sm",
