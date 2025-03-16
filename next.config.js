@@ -7,7 +7,7 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'], // Modern resim formatlarını kullan
   },
   experimental: {
-    optimizeCss: true, // CSS optimizasyonu
+    // optimizeCss: true, // CSS optimizasyonu - build hatası veriyor
     optimizePackageImports: ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'], // Paket optimizasyonu
     scrollRestoration: true, // Sayfa geçişlerinde scroll pozisyonunu koru
   },
