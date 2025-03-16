@@ -29,8 +29,10 @@ model User {
   company       Company?       @relation(fields: [companyId], references: [id])
   companyUsers  CompanyUser[]
   documents     Document[]
+  riskDegerlendirmeleri RiskDegerlendirme[]
 
   @@index([companyId])
+  @@map("users")
 }
 
 model Account {
@@ -79,6 +81,9 @@ model Company {
   inspections    Inspection[]
   emergencyPlans EmergencyPlan[]
   documents      Document[]
+  riskDegerlendirmeleri RiskDegerlendirme[]
+
+  @@map("companies")
 }
 
 model CompanyUser {
@@ -189,6 +194,43 @@ model Document {
 
   @@index([userId])
   @@index([companyId])
+}
+
+model RiskDegerlendirme {
+  id        String   @id @default(cuid())
+  baslik    String
+  tarih     DateTime
+  aciklama  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // İlişkiler
+  company   Company @relation(fields: [companyId], references: [id])
+  companyId String
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String
+  riskler   Risk[]
+
+  @@map("risk_degerlendirmeleri")
+  @@index([companyId])
+  @@index([userId])
+}
+
+model Risk {
+  id        String   @id @default(cuid())
+  tehlike   String
+  risk      String
+  onlem     String
+  seviye    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // İlişkiler
+  riskDegerlendirme   RiskDegerlendirme @relation(fields: [riskDegerlendirmeId], references: [id], onDelete: Cascade)
+  riskDegerlendirmeId String
+
+  @@map("riskler")
+  @@index([riskDegerlendirmeId])
 }
 
 enum Role {
