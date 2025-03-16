@@ -32,43 +32,43 @@ export async function GET() {
     // Kullanıcıları getir (silinmemiş olanlar)
     const users = await db.user.findMany({
       where: {
-        // deletedAt: null, // Sadece silinmemiş kullanıcıları getir - Henüz oluşturulmadı
+        deletedAt: null, // Sadece silinmemiş kullanıcıları getir
       },
       select: {
         id: true,
         name: true,
         email: true,
         role: true,
-        // profileImage: true, // Henüz oluşturulmadı
-        // phoneNumber: true, // Henüz oluşturulmadı
-        // lastLoginAt: true, // Henüz oluşturulmadı
+        profileImage: true,
+        phoneNumber: true,
+        lastLoginAt: true,
         createdAt: true,
-        // companies: { // Henüz oluşturulmadı
-        //   include: {
-        //     company: {
-        //       select: {
-        //         id: true,
-        //         name: true,
-        //       },
-        //     },
-        //   },
-        // },
+        companies: {
+          include: {
+            company: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    // Aktivite günlüğüne kaydet - Henüz oluşturulmadı
-    // await db.activityLog.create({
-    //   data: {
-    //     action: ActionType.VIEW_DOCUMENT,
-    //     description: "Kullanıcı listesi görüntülendi",
-    //     userId: session.user.id,
-    //     ipAddress: "127.0.0.1", // İstek nesnesinden alınabilir
-    //     userAgent: "API Call", // İstek nesnesinden alınabilir
-    //   },
-    // });
+    // Aktivite günlüğüne kaydet
+    await db.activityLog.create({
+      data: {
+        action: ActionType.VIEW_DOCUMENT,
+        description: "Kullanıcı listesi görüntülendi",
+        userId: session.user.id,
+        ipAddress: "127.0.0.1", // İstek nesnesinden alınabilir
+        userAgent: "API Call", // İstek nesnesinden alınabilir
+      },
+    });
 
     return NextResponse.json({ users });
   } catch (error) {
@@ -142,44 +142,44 @@ export async function POST(request: Request) {
         email,
         password: hashedPassword,
         role: role as Role,
-        // profileImage, // Henüz oluşturulmadı
-        // phoneNumber, // Henüz oluşturulmadı
-        // lastLoginAt: null, // Henüz oluşturulmadı
+        profileImage,
+        phoneNumber,
+        lastLoginAt: null,
       },
       select: {
         id: true,
         name: true,
         email: true,
         role: true,
-        // profileImage: true, // Henüz oluşturulmadı
-        // phoneNumber: true, // Henüz oluşturulmadı
+        profileImage: true,
+        phoneNumber: true,
         createdAt: true,
       },
     });
 
-    // Eğer şirket ID'si belirtilmişse, kullanıcıyı şirkete ekle - Henüz oluşturulmadı
-    // if (companyId) {
-    //   await db.companyUser.create({
-    //     data: {
-    //       userId: user.id,
-    //       companyId,
-    //       role: role as Role,
-    //     },
-    //   });
-    // }
+    // Eğer şirket ID'si belirtilmişse, kullanıcıyı şirkete ekle
+    if (companyId) {
+      await db.companyUser.create({
+        data: {
+          userId: user.id,
+          companyId,
+          role: role as Role,
+        },
+      });
+    }
 
-    // Aktivite günlüğüne kaydet - Henüz oluşturulmadı
-    // await db.activityLog.create({
-    //   data: {
-    //     action: ActionType.CREATE_USER,
-    //     description: `${user.name} adlı kullanıcı oluşturuldu`,
-    //     userId: session.user.id,
-    //     companyId: companyId || null,
-    //     ipAddress: "127.0.0.1", // İstek nesnesinden alınabilir
-    //     userAgent: "API Call", // İstek nesnesinden alınabilir
-    //     metadata: { userId: user.id },
-    //   },
-    // });
+    // Aktivite günlüğüne kaydet
+    await db.activityLog.create({
+      data: {
+        action: ActionType.CREATE_USER,
+        description: `${user.name} adlı kullanıcı oluşturuldu`,
+        userId: session.user.id,
+        companyId: companyId || null,
+        ipAddress: "127.0.0.1", // İstek nesnesinden alınabilir
+        userAgent: "API Call", // İstek nesnesinden alınabilir
+        metadata: { userId: user.id },
+      },
+    });
 
     return NextResponse.json(user, { status: 201 });
   } catch (error) {
@@ -191,60 +191,60 @@ export async function POST(request: Request) {
   }
 }
 
-// Kullanıcıları toplu silme (soft delete) - Henüz oluşturulmadı
-// export async function DELETE(request: Request) {
-//   try {
-//     // Oturumu kontrol et
-//     const session = await getServerSession(authOptions);
+// Kullanıcıları toplu silme (soft delete)
+export async function DELETE(request: Request) {
+  try {
+    // Oturumu kontrol et
+    const session = await getServerSession(authOptions);
 
-//     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
-//       return NextResponse.json(
-//         { error: "Bu işlem için yetkiniz yok" },
-//         { status: 403 }
-//       );
-//     }
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
+      return NextResponse.json(
+        { error: "Bu işlem için yetkiniz yok" },
+        { status: 403 }
+      );
+    }
 
-//     const body = await request.json();
-//     const { userIds } = body;
+    const body = await request.json();
+    const { userIds } = body;
 
-//     if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
-//       return NextResponse.json(
-//         { error: "Geçerli kullanıcı ID'leri belirtilmelidir" },
-//         { status: 400 }
-//       );
-//     }
+    if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+      return NextResponse.json(
+        { error: "Geçerli kullanıcı ID'leri belirtilmelidir" },
+        { status: 400 }
+      );
+    }
 
-//     // Soft delete - kullanıcıları sil
-//     const now = new Date();
-//     await db.user.updateMany({
-//       where: {
-//         id: {
-//           in: userIds,
-//         },
-//       },
-//       data: {
-//         deletedAt: now,
-//       },
-//     });
+    // Soft delete - kullanıcıları sil
+    const now = new Date();
+    await db.user.updateMany({
+      where: {
+        id: {
+          in: userIds,
+        },
+      },
+      data: {
+        deletedAt: now,
+      },
+    });
 
-//     // Aktivite günlüğüne kaydet
-//     await db.activityLog.create({
-//       data: {
-//         action: ActionType.DELETE_USER,
-//         description: `${userIds.length} kullanıcı silindi`,
-//         userId: session.user.id,
-//         ipAddress: "127.0.0.1", // İstek nesnesinden alınabilir
-//         userAgent: "API Call", // İstek nesnesinden alınabilir
-//         metadata: { userIds },
-//       },
-//     });
+    // Aktivite günlüğüne kaydet
+    await db.activityLog.create({
+      data: {
+        action: ActionType.DELETE_USER,
+        description: `${userIds.length} kullanıcı silindi`,
+        userId: session.user.id,
+        ipAddress: "127.0.0.1", // İstek nesnesinden alınabilir
+        userAgent: "API Call", // İstek nesnesinden alınabilir
+        metadata: { userIds },
+      },
+    });
 
-//     return NextResponse.json({ success: true });
-//   } catch (error) {
-//     console.error("Error deleting users:", error);
-//     return NextResponse.json(
-//       { error: "Kullanıcılar silinirken bir hata oluştu" },
-//       { status: 500 }
-//     );
-//   }
-// } 
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting users:", error);
+    return NextResponse.json(
+      { error: "Kullanıcılar silinirken bir hata oluştu" },
+      { status: 500 }
+    );
+  }
+} 

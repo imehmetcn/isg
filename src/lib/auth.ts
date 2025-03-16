@@ -33,23 +33,23 @@ export const authOptions: NextAuthOptions = {
           }
 
           // Kullanıcıyı bul
-          const user = await db.user.findUnique({
+          const user = await db.user.findFirst({
             where: {
               email: credentials.email,
-              // deletedAt: null, // Sadece silinmemiş kullanıcılar - Henüz oluşturulmadı
+              deletedAt: null, // Sadece silinmemiş kullanıcılar
             },
-            // include: { // Henüz oluşturulmadı
-            //   companies: {
-            //     include: {
-            //       company: {
-            //         select: {
-            //           id: true,
-            //           name: true,
-            //         }
-            //       }
-            //     }
-            //   }
-            // }
+            include: {
+              companies: {
+                include: {
+                  company: {
+                    select: {
+                      id: true,
+                      name: true,
+                    }
+                  }
+                }
+              }
+            }
           });
 
           if (!user || !user.password) {
@@ -75,42 +75,43 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          // Son giriş zamanını güncelle - Henüz oluşturulmadı
-          // await db.user.update({
-          //   where: { id: user.id },
-          //   data: { lastLoginAt: new Date() }
-          // });
+          // Son giriş zamanını güncelle
+          await db.user.update({
+            where: { id: user.id },
+            data: { lastLoginAt: new Date() }
+          });
 
-          // Aktivite günlüğüne kaydet - Henüz oluşturulmadı
-          // try {
-          //   await db.activityLog.create({
-          //     data: {
-          //       action: ActionType.LOGIN,
-          //       description: "Kullanıcı giriş yaptı",
-          //       userId: user.id,
-          //       companyId: user.companyId,
-          //       ipAddress: req.headers?.["x-forwarded-for"] as string || "127.0.0.1",
-          //       userAgent: req.headers?.["user-agent"] as string || "",
-          //     }
-          //   });
-          // } catch (logError) {
-          //   console.error("Failed to log activity:", logError);
-          //   // Loglama hatası oturum açmayı engellememelidir
-          // }
+          // Aktivite günlüğüne kaydet
+          try {
+            await db.activityLog.create({
+              data: {
+                action: ActionType.LOGIN,
+                description: "Kullanıcı giriş yaptı",
+                userId: user.id,
+                companyId: user.companies.length > 0 ? user.companies[0].companyId : null,
+                ipAddress: req.headers?.["x-forwarded-for"] as string || "127.0.0.1",
+                userAgent: req.headers?.["user-agent"] as string || "",
+              }
+            });
+          } catch (logError) {
+            console.error("Failed to log activity:", logError);
+            // Loglama hatası oturum açmayı engellememelidir
+          }
 
-          // Geriye dönük uyumluluk için
+          // Kullanıcının şirketlerini al
+          const companies = user.companies.map(cu => ({
+            id: cu.company.id,
+            name: cu.company.name,
+            role: cu.role
+          }));
+
           return {
             id: user.id,
             email: user.email,
             name: user.name || "User",
             role: user.role,
-            companyId: user.companyId,
-            // Çoklu şirket desteği - Henüz oluşturulmadı
-            // companies: user.companies?.map(cu => ({
-            //   id: cu.company.id,
-            //   name: cu.company.name,
-            //   role: cu.role
-            // })) || [],
+            companyId: companies.length > 0 ? companies[0].id : user.companyId,
+            companies: companies,
           };
         } catch (error) {
           console.error("Auth error:", error);
@@ -125,8 +126,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = user.role;
         token.companyId = user.companyId;
-        // Çoklu şirket desteği - Henüz oluşturulmadı
-        // token.companies = user.companies;
+        token.companies = user.companies;
       }
       return token;
     },
@@ -135,8 +135,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.role = token.role as Role;
         session.user.companyId = token.companyId as string | null;
-        // Çoklu şirket desteği - Henüz oluşturulmadı
-        // session.user.companies = token.companies as Array<{id: string, name: string, role: Role}>;
+        session.user.companies = token.companies as Array<{id: string, name: string, role: Role}>;
       }
       return session;
     },
