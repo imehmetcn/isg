@@ -69,10 +69,10 @@ export default function HomePage() {
           animate="show"
         >
           <motion.div variants={item}>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
               Hoş Geldiniz, {session?.user?.name}
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-lg">
               İSG Yönetim Sistemi'ne hoş geldiniz. Aşağıdaki bağlantıları kullanarak hızlıca işlem yapabilirsiniz.
             </p>
           </motion.div>
@@ -84,12 +84,13 @@ export default function HomePage() {
                   key={link.href}
                   variants={item}
                   whileHover={{ 
-                    scale: 1.03,
+                    scale: 1.05,
                     boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
                   }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <Card className="h-full hover:bg-accent/50 transition-colors cursor-pointer border-t-4 border-t-blue-500" onClick={() => router.push(link.href)}>
+                  <Card className="h-full hover:bg-accent/50 transition-colors cursor-pointer border-t-4 border-t-blue-500 overflow-hidden" onClick={() => router.push(link.href)}>
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">{link.title}</CardTitle>
                       <link.icon className="h-4 w-4 text-blue-500" />
@@ -99,7 +100,7 @@ export default function HomePage() {
                         {link.description}
                       </p>
                       <div className="flex items-center pt-4">
-                        <Button variant="link" className="p-0 h-auto font-normal text-blue-600" onClick={() => router.push(link.href)}>
+                        <Button variant="link" className="p-0 h-auto font-normal text-blue-600 hover:text-purple-600 transition-colors" onClick={() => router.push(link.href)}>
                           Görüntüle
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
@@ -119,7 +120,7 @@ export default function HomePage() {
               onClick={() => router.push("/dashboard")} 
               variant="outline" 
               size="lg"
-              className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 border-0"
+              className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 border-0 shadow-md hover:shadow-lg transition-shadow"
             >
               Kontrol Paneline Git
               <ArrowRight className="ml-2 h-4 w-4" />
