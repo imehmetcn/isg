@@ -1,41 +1,34 @@
 import type { Metadata } from 'next'
-import { GeistSans } from 'geist/font/sans'
-import { cn } from '@/lib/utils'
+import { Inter } from 'next/font/google'
 import './globals.css'
-import { NavBar } from '@/components/ui/tubelight-navbar'
-import { Toaster } from "sonner"
-import AuthProvider from '@/providers/auth-provider'
-import { Inter } from "next/font/google"
+import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/toaster"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import { SessionProvider } from "@/components/session-provider"
+import { AnimeNavBarDemo } from "@/components/ui/anime-navbar-demo"
+import { cn } from '@/lib/utils'
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin"
 import { extractRouterConfig } from "uploadthing/server"
-import { ourFileRouter } from "@/lib/uploadthing"
+import { ourFileRouter } from "@/app/api/uploadthing/core"
 
-// Font optimizasyonu
-const inter = Inter({ 
-  subsets: ["latin"],
-  display: 'swap', // Font yüklenene kadar sistem fontunu kullan
-  preload: true,
-  fallback: ['system-ui', 'sans-serif']
-})
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: 'İSG Yönetim Sistemi',
+  title: 'İSG Yönetim',
   description: 'İş Sağlığı ve Güvenliği Yönetim Sistemi',
   icons: {
-    icon: [
-      {
-        url: '/favicon.svg',
-        type: 'image/svg+xml',
-      }
-    ]
+    icon: '/favicon.ico',
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="tr" suppressHydrationWarning>
       <head>
@@ -43,23 +36,25 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
       </head>
-      <body
-        className={cn(
-          'min-h-screen font-sans antialiased',
-          GeistSans.variable,
-          inter.className
-        )}
-      >
-        <AuthProvider>
-          <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-          <div className="flex flex-col min-h-screen">
-            <NavBar />
-            <div className="flex-grow">
+      <body className={cn(
+        inter.className,
+        "min-h-screen bg-background font-sans antialiased"
+      )}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SessionProvider session={session}>
+            {session && <AnimeNavBarDemo />}
+            <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+            <div className="min-h-screen flex flex-col">
               {children}
             </div>
-          </div>
-          <Toaster position="top-right" closeButton richColors />
-        </AuthProvider>
+            <Toaster />
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
