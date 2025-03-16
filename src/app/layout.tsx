@@ -10,7 +10,13 @@ import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin"
 import { extractRouterConfig } from "uploadthing/server"
 import { ourFileRouter } from "@/lib/uploadthing"
 
-const inter = Inter({ subsets: ["latin"] })
+// Font optimizasyonu
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap', // Font yüklenene kadar sistem fontunu kullan
+  preload: true,
+  fallback: ['system-ui', 'sans-serif']
+})
 
 export const metadata: Metadata = {
   title: 'İSG Yönetim Sistemi',
@@ -31,7 +37,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="tr">
+    <html lang="tr" suppressHydrationWarning>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+      </head>
       <body
         className={cn(
           'min-h-screen font-sans antialiased',
@@ -42,7 +53,7 @@ export default function RootLayout({
         <AuthProvider>
           <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
           {children}
-          <Toaster />
+          <Toaster position="top-right" closeButton richColors />
         </AuthProvider>
       </body>
     </html>
