@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 import './globals.css'
 import { NavBar } from '@/components/ui/tubelight-navbar'
 import { Toaster } from "sonner"
-import AuthProvider from '@/providers/session-provider'
+import AuthProvider from '@/providers/auth-provider'
 import { Inter } from "next/font/google"
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin"
 import { extractRouterConfig } from "uploadthing/server"
