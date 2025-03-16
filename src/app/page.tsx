@@ -15,7 +15,6 @@ import {
   UserPlus,
   Search
 } from "lucide-react";
-import { AnimatedHeader } from "@/components/ui/animated-header";
 import { motion } from "framer-motion";
 import { useState, useEffect, lazy, Suspense } from "react";
 
@@ -78,8 +77,6 @@ export default function HomePage() {
 
   return (
     <>
-      <AnimatedHeader />
-      
       {/* Lazy load the animated background */}
       {isLoaded && (
         <Suspense fallback={null}>
@@ -87,7 +84,7 @@ export default function HomePage() {
         </Suspense>
       )}
       
-      <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pb-16">
+      <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pb-16 pt-8">
         <motion.div 
           className="flex flex-col gap-8"
           variants={container}
