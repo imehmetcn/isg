@@ -5,31 +5,70 @@ import { authOptions } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 import { Role } from "@prisma/client";
 
+// ActionType enum'u henüz Prisma Client'ta oluşturulmadığı için string olarak tanımlıyoruz
+const ActionType = {
+  VIEW_DOCUMENT: "VIEW_DOCUMENT",
+  CREATE_USER: "CREATE_USER",
+  DELETE_USER: "DELETE_USER",
+  LOGIN: "LOGIN",
+  LOGOUT: "LOGOUT",
+  CREATE_DOCUMENT: "CREATE_DOCUMENT",
+  UPDATE_DOCUMENT: "UPDATE_DOCUMENT",
+  DELETE_DOCUMENT: "DELETE_DOCUMENT",
+} as const;
+
 export async function GET() {
   try {
     // Oturumu kontrol et
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
       return NextResponse.json(
         { error: "Bu işlem için yetkiniz yok" },
         { status: 403 }
       );
     }
 
-    // Kullanıcıları getir
+    // Kullanıcıları getir (silinmemiş olanlar)
     const users = await db.user.findMany({
+      where: {
+        // deletedAt: null, // Sadece silinmemiş kullanıcıları getir - Henüz oluşturulmadı
+      },
       select: {
         id: true,
         name: true,
         email: true,
         role: true,
+        // profileImage: true, // Henüz oluşturulmadı
+        // phoneNumber: true, // Henüz oluşturulmadı
+        // lastLoginAt: true, // Henüz oluşturulmadı
         createdAt: true,
+        // companies: { // Henüz oluşturulmadı
+        //   include: {
+        //     company: {
+        //       select: {
+        //         id: true,
+        //         name: true,
+        //       },
+        //     },
+        //   },
+        // },
       },
       orderBy: {
         createdAt: "desc",
       },
     });
+
+    // Aktivite günlüğüne kaydet - Henüz oluşturulmadı
+    // await db.activityLog.create({
+    //   data: {
+    //     action: ActionType.VIEW_DOCUMENT,
+    //     description: "Kullanıcı listesi görüntülendi",
+    //     userId: session.user.id,
+    //     ipAddress: "127.0.0.1", // İstek nesnesinden alınabilir
+    //     userAgent: "API Call", // İstek nesnesinden alınabilir
+    //   },
+    // });
 
     return NextResponse.json({ users });
   } catch (error) {
@@ -46,7 +85,7 @@ export async function POST(request: Request) {
     // Oturumu kontrol et
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "ADMIN") {
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
       return NextResponse.json(
         { error: "Bu işlem için yetkiniz yok" },
         { status: 403 }
@@ -54,7 +93,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, email, password, role } = body;
+    const { name, email, password, role, profileImage, phoneNumber, companyId } = body;
 
     // Gerekli alanları kontrol et
     if (!name || !email || !password || !role) {
@@ -103,15 +142,44 @@ export async function POST(request: Request) {
         email,
         password: hashedPassword,
         role: role as Role,
+        // profileImage, // Henüz oluşturulmadı
+        // phoneNumber, // Henüz oluşturulmadı
+        // lastLoginAt: null, // Henüz oluşturulmadı
       },
       select: {
         id: true,
         name: true,
         email: true,
         role: true,
+        // profileImage: true, // Henüz oluşturulmadı
+        // phoneNumber: true, // Henüz oluşturulmadı
         createdAt: true,
       },
     });
+
+    // Eğer şirket ID'si belirtilmişse, kullanıcıyı şirkete ekle - Henüz oluşturulmadı
+    // if (companyId) {
+    //   await db.companyUser.create({
+    //     data: {
+    //       userId: user.id,
+    //       companyId,
+    //       role: role as Role,
+    //     },
+    //   });
+    // }
+
+    // Aktivite günlüğüne kaydet - Henüz oluşturulmadı
+    // await db.activityLog.create({
+    //   data: {
+    //     action: ActionType.CREATE_USER,
+    //     description: `${user.name} adlı kullanıcı oluşturuldu`,
+    //     userId: session.user.id,
+    //     companyId: companyId || null,
+    //     ipAddress: "127.0.0.1", // İstek nesnesinden alınabilir
+    //     userAgent: "API Call", // İstek nesnesinden alınabilir
+    //     metadata: { userId: user.id },
+    //   },
+    // });
 
     return NextResponse.json(user, { status: 201 });
   } catch (error) {
@@ -121,4 +189,62 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-} 
+}
+
+// Kullanıcıları toplu silme (soft delete) - Henüz oluşturulmadı
+// export async function DELETE(request: Request) {
+//   try {
+//     // Oturumu kontrol et
+//     const session = await getServerSession(authOptions);
+
+//     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
+//       return NextResponse.json(
+//         { error: "Bu işlem için yetkiniz yok" },
+//         { status: 403 }
+//       );
+//     }
+
+//     const body = await request.json();
+//     const { userIds } = body;
+
+//     if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+//       return NextResponse.json(
+//         { error: "Geçerli kullanıcı ID'leri belirtilmelidir" },
+//         { status: 400 }
+//       );
+//     }
+
+//     // Soft delete - kullanıcıları sil
+//     const now = new Date();
+//     await db.user.updateMany({
+//       where: {
+//         id: {
+//           in: userIds,
+//         },
+//       },
+//       data: {
+//         deletedAt: now,
+//       },
+//     });
+
+//     // Aktivite günlüğüne kaydet
+//     await db.activityLog.create({
+//       data: {
+//         action: ActionType.DELETE_USER,
+//         description: `${userIds.length} kullanıcı silindi`,
+//         userId: session.user.id,
+//         ipAddress: "127.0.0.1", // İstek nesnesinden alınabilir
+//         userAgent: "API Call", // İstek nesnesinden alınabilir
+//         metadata: { userIds },
+//       },
+//     });
+
+//     return NextResponse.json({ success: true });
+//   } catch (error) {
+//     console.error("Error deleting users:", error);
+//     return NextResponse.json(
+//       { error: "Kullanıcılar silinirken bir hata oluştu" },
+//       { status: 500 }
+//     );
+//   }
+// } 

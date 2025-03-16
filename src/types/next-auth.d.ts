@@ -8,6 +8,7 @@ declare module "next-auth" {
     name: string
     role: Role
     companyId: string | null
+    companies?: Array<{id: string, name: string, role: Role}>
   }
 
   interface Session {
@@ -15,6 +16,7 @@ declare module "next-auth" {
       id: string
       role: Role
       companyId: string | null
+      companies?: Array<{id: string, name: string, role: Role}>
     }
   }
 } 

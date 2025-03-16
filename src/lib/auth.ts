@@ -5,6 +5,12 @@ import bcrypt from "bcryptjs"
 import { Role } from "@prisma/client"
 import { RequestInternal } from "next-auth"
 
+// ActionType enum'u henüz Prisma Client'ta oluşturulmadığı için string olarak tanımlıyoruz
+const ActionType = {
+  LOGIN: "LOGIN",
+  LOGOUT: "LOGOUT",
+} as const;
+
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
@@ -26,10 +32,24 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
+          // Kullanıcıyı bul
           const user = await db.user.findUnique({
             where: {
               email: credentials.email,
+              // deletedAt: null, // Sadece silinmemiş kullanıcılar - Henüz oluşturulmadı
             },
+            // include: { // Henüz oluşturulmadı
+            //   companies: {
+            //     include: {
+            //       company: {
+            //         select: {
+            //           id: true,
+            //           name: true,
+            //         }
+            //       }
+            //     }
+            //   }
+            // }
           });
 
           if (!user || !user.password) {
@@ -55,12 +75,42 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
+          // Son giriş zamanını güncelle - Henüz oluşturulmadı
+          // await db.user.update({
+          //   where: { id: user.id },
+          //   data: { lastLoginAt: new Date() }
+          // });
+
+          // Aktivite günlüğüne kaydet - Henüz oluşturulmadı
+          // try {
+          //   await db.activityLog.create({
+          //     data: {
+          //       action: ActionType.LOGIN,
+          //       description: "Kullanıcı giriş yaptı",
+          //       userId: user.id,
+          //       companyId: user.companyId,
+          //       ipAddress: req.headers?.["x-forwarded-for"] as string || "127.0.0.1",
+          //       userAgent: req.headers?.["user-agent"] as string || "",
+          //     }
+          //   });
+          // } catch (logError) {
+          //   console.error("Failed to log activity:", logError);
+          //   // Loglama hatası oturum açmayı engellememelidir
+          // }
+
+          // Geriye dönük uyumluluk için
           return {
             id: user.id,
             email: user.email,
             name: user.name || "User",
             role: user.role,
             companyId: user.companyId,
+            // Çoklu şirket desteği - Henüz oluşturulmadı
+            // companies: user.companies?.map(cu => ({
+            //   id: cu.company.id,
+            //   name: cu.company.name,
+            //   role: cu.role
+            // })) || [],
           };
         } catch (error) {
           console.error("Auth error:", error);
@@ -75,6 +125,8 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = user.role;
         token.companyId = user.companyId;
+        // Çoklu şirket desteği - Henüz oluşturulmadı
+        // token.companies = user.companies;
       }
       return token;
     },
@@ -83,6 +135,8 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.role = token.role as Role;
         session.user.companyId = token.companyId as string | null;
+        // Çoklu şirket desteği - Henüz oluşturulmadı
+        // session.user.companies = token.companies as Array<{id: string, name: string, role: Role}>;
       }
       return session;
     },

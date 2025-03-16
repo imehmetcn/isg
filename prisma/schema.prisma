@@ -3,66 +3,172 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["filteredRelationCount", "fullTextSearch", "extendedWhereUnique"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
-}
-
-model Company {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // İlişkiler
-  users               User[]
-  documents          Document[]
-
-  @@map("companies")
+  relationMode = "prisma"
 }
 
 model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  role          Role      @default(USER)
+  profileImage  String?   // Profil resmi URL'si
+  phoneNumber   String?   // Telefon numarası
+  lastLoginAt   DateTime? // Son giriş tarihi
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime? // Soft delete için
+
+  // İlişkiler
+  companies     CompanyUser[] // Çoklu şirket desteği
+  documents     Document[]
+  activities    ActivityLog[]
+  documentVersions DocumentVersion[]
+
+  @@map("users")
+  @@index([email])
+  @@index([deletedAt])
+}
+
+model Company {
+  id            String    @id @default(cuid())
+  name          String
+  address       String?   // Şirket adresi
+  phoneNumber   String?   // Şirket telefon numarası
+  taxNumber     String?   // Vergi numarası
+  logo          String?   // Logo URL'si
+  website       String?   // Web sitesi
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime? // Soft delete için
+
+  // İlişkiler
+  users         CompanyUser[] // Çoklu şirket desteği
+  documents     Document[]
+  activities    ActivityLog[]
+  documentVersions DocumentVersion[]
+
+  @@map("companies")
+  @@index([deletedAt])
+}
+
+model CompanyUser {
   id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      Role     @default(USER)
+  role      Role     @default(USER) // Şirkete özel rol
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // İlişkiler
-  company   Company? @relation(fields: [companyId], references: [id])
-  companyId String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String
 
-  documents Document[]
-
-  @@map("users")
+  @@unique([userId, companyId]) // Bir kullanıcı bir şirkette sadece bir kez olabilir
+  @@map("company_users")
+  @@index([userId])
   @@index([companyId])
 }
 
 model Document {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
   description String?
   fileUrl     String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  fileSize    Int?      // Dosya boyutu (byte)
+  mimeType    String?   // Dosya tipi (örn. application/pdf)
+  tags        String[]  // Etiketler
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? // Soft delete için
 
   // İlişkiler
-  company   Company @relation(fields: [companyId], references: [id])
-  companyId String
-  user      User    @relation(fields: [userId], references: [id])
-  userId    String
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId   String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+  userId      String
+  versions    DocumentVersion[]
 
   @@map("documents")
   @@index([companyId])
   @@index([userId])
+  @@index([title]) // Başlığa göre arama için
+  @@index([deletedAt])
+  @@index([tags])
+}
+
+model DocumentVersion {
+  id          String   @id @default(cuid())
+  versionNumber Int    // Versiyon numarası
+  fileUrl     String   // Bu versiyonun dosya URL'si
+  fileSize    Int?     // Dosya boyutu (byte)
+  changeNote  String?  // Değişiklik notu
+  createdAt   DateTime @default(now())
+
+  // İlişkiler
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  documentId  String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  userId      String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId   String
+
+  @@map("document_versions")
+  @@index([documentId])
+  @@index([userId])
+  @@index([companyId])
+}
+
+model ActivityLog {
+  id          String      @id @default(cuid())
+  action      ActionType  // Eylem tipi
+  description String      // Eylem açıklaması
+  metadata    Json?       // Ek bilgiler
+  ipAddress   String?     // IP adresi
+  userAgent   String?     // Tarayıcı bilgisi
+  createdAt   DateTime    @default(now())
+
+  // İlişkiler
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  company     Company?    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId   String?
+
+  @@map("activity_logs")
+  @@index([userId])
+  @@index([companyId])
+  @@index([action])
+  @@index([createdAt])
 }
 
 enum Role {
-  ADMIN
-  USER
-} 
+  SUPER_ADMIN  // Sistem yöneticisi
+  ADMIN        // Şirket yöneticisi
+  MANAGER      // Yönetici
+  EDITOR       // Düzenleyici
+  VIEWER       // Görüntüleyici
+  USER         // Normal kullanıcı
+}
+
+enum ActionType {
+  LOGIN             // Giriş
+  LOGOUT            // Çıkış
+  CREATE_DOCUMENT   // Belge oluşturma
+  UPDATE_DOCUMENT   // Belge güncelleme
+  DELETE_DOCUMENT   // Belge silme
+  VIEW_DOCUMENT     // Belge görüntüleme
+  CREATE_USER       // Kullanıcı oluşturma
+  UPDATE_USER       // Kullanıcı güncelleme
+  DELETE_USER       // Kullanıcı silme
+  CREATE_COMPANY    // Şirket oluşturma
+  UPDATE_COMPANY    // Şirket güncelleme
+  DELETE_COMPANY    // Şirket silme
+  OTHER             // Diğer
+}
