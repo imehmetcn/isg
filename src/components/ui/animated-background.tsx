@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { motion } from "framer-motion";
 
 export function AnimatedBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -31,10 +30,14 @@ export function AnimatedBackground() {
       speedX: number;
       speedY: number;
       color: string;
+      canvasWidth: number;
+      canvasHeight: number;
 
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
+      constructor(width: number, height: number) {
+        this.canvasWidth = width;
+        this.canvasHeight = height;
+        this.x = Math.random() * this.canvasWidth;
+        this.y = Math.random() * this.canvasHeight;
         this.size = Math.random() * 5 + 1;
         this.speedX = Math.random() * 1 - 0.5;
         this.speedY = Math.random() * 1 - 0.5;
@@ -47,11 +50,11 @@ export function AnimatedBackground() {
         this.x += this.speedX;
         this.y += this.speedY;
 
-        if (this.x > canvas.width) this.x = 0;
-        else if (this.x < 0) this.x = canvas.width;
+        if (this.x > this.canvasWidth) this.x = 0;
+        else if (this.x < 0) this.x = this.canvasWidth;
 
-        if (this.y > canvas.height) this.y = 0;
-        else if (this.y < 0) this.y = canvas.height;
+        if (this.y > this.canvasHeight) this.y = 0;
+        else if (this.y < 0) this.y = this.canvasHeight;
       }
 
       draw() {
@@ -68,11 +71,12 @@ export function AnimatedBackground() {
     const numberOfParticles = Math.min(50, Math.floor((canvas.width * canvas.height) / 20000));
 
     for (let i = 0; i < numberOfParticles; i++) {
-      particlesArray.push(new Particle());
+      particlesArray.push(new Particle(canvas.width, canvas.height));
     }
 
     // Animasyon döngüsü
     const animate = () => {
+      if (!canvas || !ctx) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       for (let i = 0; i < particlesArray.length; i++) {
@@ -88,6 +92,7 @@ export function AnimatedBackground() {
 
     // Parçacıklar arasında çizgiler çiz
     const connectParticles = () => {
+      if (!ctx) return;
       for (let a = 0; a < particlesArray.length; a++) {
         for (let b = a; b < particlesArray.length; b++) {
           const dx = particlesArray[a].x - particlesArray[b].x;
