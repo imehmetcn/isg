@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { Search, Plus, Filter } from 'lucide-react';
 import { Hazard } from '@/lib/types/risk';
 import { AddHazardModal } from './AddHazardModal';
@@ -81,11 +80,9 @@ export const HazardLibrary = ({ hazards, onAddHazard, onSelectHazard }: HazardLi
 
       <div className="space-y-4">
         {filteredHazards.map(hazard => (
-          <motion.div
+          <div
             key={hazard.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-4 border border-gray-200 rounded-lg hover:border-blue-500 cursor-pointer"
+            className="p-4 border border-gray-200 rounded-lg hover:border-blue-500 cursor-pointer transition-all duration-200 hover:shadow-md"
             onClick={() => onSelectHazard(hazard)}
           >
             <div className="flex justify-between items-start mb-2">
@@ -117,7 +114,7 @@ export const HazardLibrary = ({ hazards, onAddHazard, onSelectHazard }: HazardLi
                 </ul>
               </div>
             </div>
-          </motion.div>
+          </div>
         ))}
 
         {filteredHazards.length === 0 && (

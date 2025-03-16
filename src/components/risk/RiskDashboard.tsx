@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Hazard } from '@/lib/types/risk';
 import { PieChart, BarChart, AlertTriangle, Shield, CheckCircle } from 'lucide-react';
 
@@ -29,11 +28,7 @@ export const RiskDashboard = ({ selectedHazards }: RiskDashboardProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
       {/* Risk Seviyesi Dağılımı */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-xl shadow-lg p-6"
-      >
+      <div className="bg-white rounded-xl shadow-lg p-6 animate-fade-in">
         <div className="flex items-center gap-3 mb-4">
           <PieChart className="text-blue-500" size={24} />
           <h3 className="text-lg font-semibold text-gray-800">Risk Dağılımı</h3>
@@ -88,15 +83,10 @@ export const RiskDashboard = ({ selectedHazards }: RiskDashboardProps) => {
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Kategori Dağılımı */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="bg-white rounded-xl shadow-lg p-6"
-      >
+      <div className="bg-white rounded-xl shadow-lg p-6 animate-fade-in">
         <div className="flex items-center gap-3 mb-4">
           <BarChart className="text-blue-500" size={24} />
           <h3 className="text-lg font-semibold text-gray-800">Kategori Dağılımı</h3>
@@ -117,15 +107,10 @@ export const RiskDashboard = ({ selectedHazards }: RiskDashboardProps) => {
             </div>
           ))}
         </div>
-      </motion.div>
+      </div>
 
       {/* Kritik Risk Oranı */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="bg-white rounded-xl shadow-lg p-6"
-      >
+      <div className="bg-white rounded-xl shadow-lg p-6 animate-fade-in">
         <div className="flex items-center gap-3 mb-4">
           <AlertTriangle className="text-red-500" size={24} />
           <h3 className="text-lg font-semibold text-gray-800">Kritik Risk Oranı</h3>
@@ -159,15 +144,10 @@ export const RiskDashboard = ({ selectedHazards }: RiskDashboardProps) => {
             Kritik risk seviyesindeki tehlikelerin oranı
           </p>
         </div>
-      </motion.div>
+      </div>
 
       {/* Kontrol Önlemleri */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="bg-white rounded-xl shadow-lg p-6"
-      >
+      <div className="bg-white rounded-xl shadow-lg p-6 animate-fade-in">
         <div className="flex items-center gap-3 mb-4">
           <Shield className="text-green-500" size={24} />
           <h3 className="text-lg font-semibold text-gray-800">Kontrol Durumu</h3>
@@ -201,7 +181,7 @@ export const RiskDashboard = ({ selectedHazards }: RiskDashboardProps) => {
             Kontrol önlemi tanımlanmış tehlike sayısı
           </p>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }; 

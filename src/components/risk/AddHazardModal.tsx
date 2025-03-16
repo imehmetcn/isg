@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Minus } from 'lucide-react';
 import { Hazard, Severity, Probability, getRiskLevel } from '@/lib/types/risk';
 
@@ -74,12 +73,7 @@ export const AddHazardModal = ({ isOpen, onClose, onAdd }: AddHazardModalProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-      >
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-fade-in">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800">Yeni Tehlike Ekle</h2>
@@ -256,7 +250,7 @@ export const AddHazardModal = ({ isOpen, onClose, onAdd }: AddHazardModalProps) 
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-gray-700 hover:text-gray-900"
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 İptal
               </button>
@@ -264,12 +258,12 @@ export const AddHazardModal = ({ isOpen, onClose, onAdd }: AddHazardModalProps) 
                 type="submit"
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
               >
-                Tehlike Ekle
+                Ekle
               </button>
             </div>
           </form>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }; 

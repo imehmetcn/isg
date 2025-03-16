@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { RiskMatrix } from '@/components/risk/RiskMatrix';
 import { HazardLibrary } from '@/components/risk/HazardLibrary';
 import { RiskDashboard } from '@/components/risk/RiskDashboard';
@@ -49,35 +48,23 @@ export default function RiskDegerlendirmePage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
-      >
+      <div className="mb-8 animate-fade-in">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Risk Değerlendirmesi</h1>
         <p className="text-gray-600">
           Tehlikeleri belirleyin, risk seviyelerini değerlendirin ve kontrol önlemlerini planlayın.
         </p>
-      </motion.div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl shadow-lg p-6"
-        >
+        <div className="bg-white rounded-xl shadow-lg p-6 animate-fade-in">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Risk Matrisi</h2>
           <RiskMatrix
             onCellClick={(severity, probability) => setSelectedCell({ severity, probability })}
             selectedCell={selectedCell}
           />
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl shadow-lg p-6"
-        >
+        <div className="bg-white rounded-xl shadow-lg p-6 animate-fade-in">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Değerlendirme Bilgileri</h2>
           <div className="space-y-4">
             <div>
@@ -117,30 +104,22 @@ export default function RiskDegerlendirmePage() {
               />
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {selectedHazards.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
+        <div className="mb-8 animate-fade-in">
           <RiskDashboard selectedHazards={selectedHazards} />
-        </motion.div>
+        </div>
       )}
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
+      <div className="animate-fade-in">
         <HazardLibrary
           hazards={selectedHazards}
           onAddHazard={handleAddHazard}
           onSelectHazard={handleSelectHazard}
         />
-      </motion.div>
+      </div>
 
       <div className="mt-8 flex justify-end gap-4">
         <button
