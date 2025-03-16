@@ -11,21 +11,14 @@ const ActionType = {
   LOGOUT: "LOGOUT",
 } as const;
 
-// Tip tanımlamaları
-type UserWithCompanies = {
+// User tipini tanımlayalım
+type User = {
   id: string;
-  name: string | null;
-  email: string | null;
-  password: string;
+  email: string;
+  name: string;
   role: Role;
-  companies: Array<{
-    companyId: string;
-    company: {
-      id: string;
-      name: string;
-    }
-    role: Role;
-  }>;
+  companyId: string | null;
+  companies: Array<{id: string, name: string, role: Role}>;
 };
 
 export const authOptions: NextAuthOptions = {
@@ -49,27 +42,16 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          // Kullanıcıyı bul
-          const user = await db.user.findFirst({
+          console.log("Looking for user with email:", credentials.email);
+
+          // Kullanıcıyı basit sorgu ile bul
+          const user = await db.user.findUnique({
             where: {
               email: credentials.email,
-              // @ts-ignore - Prisma şemasında var ama TypeScript henüz tanımıyor
-              deletedAt: null, // Sadece silinmemiş kullanıcılar
-            },
-            include: {
-              // @ts-ignore - Prisma şemasında var ama TypeScript henüz tanımıyor
-              companies: {
-                include: {
-                  company: {
-                    select: {
-                      id: true,
-                      name: true,
-                    }
-                  }
-                }
-              }
             }
-          }) as unknown as UserWithCompanies;
+          });
+
+          console.log("User found:", user ? "yes" : "no");
 
           if (!user || !user.password) {
             console.log("User not found or no password");
@@ -89,56 +71,15 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          if (!user.email) {
-            console.log("User email is null");
-            return null;
-          }
-
-          // Son giriş zamanını güncelle
-          await db.user.update({
-            where: { id: user.id },
-            data: { 
-              // @ts-ignore - Prisma şemasında var ama TypeScript henüz tanımıyor
-              lastLoginAt: new Date() 
-            }
-          });
-
-          // Aktivite günlüğüne kaydet
-          try {
-            // @ts-ignore - Prisma şemasında var ama TypeScript henüz tanımıyor
-            await db.activityLog.create({
-              data: {
-                action: ActionType.LOGIN,
-                description: "Kullanıcı giriş yaptı",
-                userId: user.id,
-                companyId: user.companies.length > 0 ? user.companies[0].companyId : null,
-                ipAddress: req.headers?.["x-forwarded-for"] as string || "127.0.0.1",
-                userAgent: req.headers?.["user-agent"] as string || "",
-              }
-            });
-          } catch (logError) {
-            console.error("Failed to log activity:", logError);
-            // Loglama hatası oturum açmayı engellememelidir
-          }
-
-          // Kullanıcının şirketlerini al
-          const companies = user.companies.map(cu => ({
-            id: cu.company.id,
-            name: cu.company.name,
-            role: cu.role
-          }));
-
-          // İlk şirket ID'sini varsayılan olarak kullan
-          const defaultCompanyId = companies.length > 0 ? companies[0].id : null;
-
+          // Basitleştirilmiş yaklaşım - şirket ilişkilerini daha sonra yükleyeceğiz
           return {
             id: user.id,
-            email: user.email,
+            email: user.email || "",
             name: user.name || "User",
             role: user.role,
-            companyId: defaultCompanyId,
-            companies: companies,
-          };
+            companyId: null, // Şimdilik null olarak ayarlıyoruz
+            companies: [], // Boş dizi olarak başlatıyoruz
+          } as User;
         } catch (error) {
           console.error("Auth error:", error);
           return null;
@@ -161,7 +102,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.role = token.role as Role;
         session.user.companyId = token.companyId as string | null;
-        session.user.companies = token.companies as Array<{id: string, name: string, role: Role}>;
+        session.user.companies = token.companies as Array<{id: string, name: string, role: Role}> || [];
       }
       return session;
     },
