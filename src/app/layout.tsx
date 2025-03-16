@@ -6,7 +6,8 @@ import { Toaster } from "@/components/ui/toaster"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { SessionProvider } from "@/components/session-provider"
-// import { AnimeNavBarDemo } from "@/components/ui/anime-navbar-demo"
+import { Navbar } from "@/components/layout/Navbar"
+import { Footer } from "@/components/layout/Footer"
 import { cn } from '@/lib/utils'
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin"
 import { extractRouterConfig } from "uploadthing/server"
@@ -47,10 +48,13 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <SessionProvider session={session}>
-            {/* Navbar artık (main) layout içinde tanımlandı */}
             <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
             <div className="min-h-screen flex flex-col">
-              {children}
+              <Navbar />
+              <main className="flex-grow">
+                {children}
+              </main>
+              <Footer />
             </div>
             <Toaster />
           </SessionProvider>
