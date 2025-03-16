@@ -9,6 +9,7 @@ import { Inter } from "next/font/google"
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin"
 import { extractRouterConfig } from "uploadthing/server"
 import { ourFileRouter } from "@/lib/uploadthing"
+import { headers } from 'next/headers'
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -30,19 +31,28 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  // URL'i server-side olarak al
+  const headersList = headers()
+  const pathname = headersList.get('x-pathname') || ''
+  const isLoginPage = pathname.includes('/login')
+
   return (
     <html lang="tr">
       <body
         className={cn(
-          'min-h-screen bg-background font-sans antialiased',
+          'min-h-screen font-sans antialiased',
+          !isLoginPage && 'bg-background',
           GeistSans.variable,
           inter.className
         )}
       >
         <AuthProvider>
           <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-          <NavBar />
-          <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-20 pb-16">
+          {!isLoginPage && <NavBar />}
+          <main className={cn(
+            "flex-grow mx-auto w-full",
+            !isLoginPage && "px-4 sm:px-6 lg:px-8 max-w-7xl pt-20 pb-16"
+          )}>
             {children}
           </main>
           <Toaster />

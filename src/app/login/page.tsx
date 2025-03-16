@@ -33,7 +33,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/dashboard"); // Başarılı girişten sonra dashboard'a yönlendir
+      router.push("/dashboard");
       router.refresh();
     } catch (error) {
       setError("Bir hata oluştu. Lütfen tekrar deneyin.");
@@ -43,18 +43,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Giriş Yap</CardTitle>
-          <CardDescription>
+    <div className="flex items-center justify-center min-h-screen bg-black">
+      <Card className="w-full max-w-md bg-black border border-gray-800">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl text-center text-white">Giriş Yap</CardTitle>
+          <CardDescription className="text-center text-gray-400">
             İş Güvenliği Yönetim Sistemine hoş geldiniz
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
+              <label htmlFor="email" className="text-sm font-medium text-gray-300">
                 Email
               </label>
               <Input
@@ -63,10 +63,11 @@ export default function LoginPage() {
                 type="email"
                 placeholder="ornek@sirket.com"
                 required
+                className="bg-gray-900 border-gray-800 text-white placeholder:text-gray-500"
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium">
+              <label htmlFor="password" className="text-sm font-medium text-gray-300">
                 Şifre
               </label>
               <Input
@@ -74,14 +75,15 @@ export default function LoginPage() {
                 name="password"
                 type="password"
                 required
+                className="bg-gray-900 border-gray-800 text-white"
               />
             </div>
             {error && (
-              <div className="text-red-500 text-sm">{error}</div>
+              <div className="text-red-400 text-sm">{error}</div>
             )}
             <Button
               type="submit"
-              className="w-full"
+              className="w-full bg-white text-black hover:bg-gray-200"
               disabled={isLoading}
             >
               {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}

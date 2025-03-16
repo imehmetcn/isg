@@ -3,10 +3,16 @@ import { NextResponse } from "next/server";
 
 export default withAuth(
   function middleware(req) {
+    // Mevcut yanıtı al veya yeni bir yanıt oluştur
+    const response = NextResponse.next();
+    
+    // Pathname'i header'a ekle
+    response.headers.set('x-pathname', req.nextUrl.pathname);
+
     // Auth ile ilgili sayfaları kontrol etme
     const publicPaths = ["/login", "/register", "/forgot-password"];
     if (publicPaths.includes(req.nextUrl.pathname)) {
-      return NextResponse.next();
+      return response;
     }
 
     // Admin sayfaları kontrolü
@@ -17,7 +23,7 @@ export default withAuth(
       return NextResponse.redirect(new URL("/", req.url));
     }
 
-    return NextResponse.next();
+    return response;
   },
   {
     callbacks: {
