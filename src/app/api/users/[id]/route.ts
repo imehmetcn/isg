@@ -5,6 +5,22 @@ import { authOptions } from "@/lib/auth";
 import { Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
+// Tip tanımlamaları
+type UserWithCompanies = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  role: Role;
+  createdAt: Date;
+  companies: Array<{
+    companyId: string;
+    company: {
+      id: string;
+      name: string;
+    }
+  }>;
+};
+
 interface Props {
   params: {
     id: string;
@@ -40,14 +56,19 @@ export async function GET(request: Request, { params }: Props) {
         email: true,
         role: true,
         createdAt: true,
-        company: {
-          select: {
-            id: true,
-            name: true,
+        // @ts-ignore - Prisma şemasında var ama TypeScript henüz tanımıyor
+        companies: {
+          include: {
+            company: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
       },
-    });
+    }) as unknown as UserWithCompanies;
 
     if (!user) {
       return NextResponse.json(
@@ -56,7 +77,16 @@ export async function GET(request: Request, { params }: Props) {
       );
     }
 
-    return NextResponse.json(user);
+    // Geriye dönük uyumluluk için ilk şirketi company olarak ekleyelim
+    const responseUser = {
+      ...user,
+      company: user.companies.length > 0 ? {
+        id: user.companies[0].company.id,
+        name: user.companies[0].company.name,
+      } : null
+    };
+
+    return NextResponse.json(responseUser);
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json(
@@ -212,9 +242,14 @@ export async function DELETE(request: Request, { params }: Props) {
       );
     }
 
-    // Kullanıcıyı sil
-    await db.user.delete({
+    // Soft delete kullan
+    const now = new Date();
+    await db.user.update({
       where: { id: params.id },
+      data: {
+        // @ts-ignore - Prisma şemasında var ama TypeScript henüz tanımıyor
+        deletedAt: now,
+      },
     });
 
     return NextResponse.json({ message: "Kullanıcı başarıyla silindi" });
