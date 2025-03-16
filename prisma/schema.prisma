@@ -3,271 +3,66 @@
 
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
   provider = "postgresql"
-  url = env("DATABASE_URL")
-  relationMode = "prisma"
-}
-
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  role          Role      @default(USER)
-  companyId     String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  accounts      Account[]
-  sessions      Session[]
-  company       Company?       @relation(fields: [companyId], references: [id])
-  companyUsers  CompanyUser[]
-  documents     Document[]
-  riskDegerlendirmeleri RiskDegerlendirme[]
-
-  @@index([companyId])
-  @@map("users")
-}
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Company {
   id        String   @id @default(cuid())
   name      String
-  address   String?
-  phone     String?
-  email     String?
-  website   String?
-  logo      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  users          User[]
-  companyUsers   CompanyUser[]
-  riskAssessments RiskAssessment[]
-  incidents      Incident[]
-  trainings      Training[]
-  inspections    Inspection[]
-  emergencyPlans EmergencyPlan[]
-  documents      Document[]
-  riskDegerlendirmeleri RiskDegerlendirme[]
+
+  // İlişkiler
+  users               User[]
+  documents          Document[]
 
   @@map("companies")
 }
 
-model CompanyUser {
+model User {
   id        String   @id @default(cuid())
-  userId    String
-  companyId String
-  user      User     @relation(fields: [userId], references: [id])
-  company   Company  @relation(fields: [companyId], references: [id])
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, companyId])
-}
+  // İlişkiler
+  company   Company? @relation(fields: [companyId], references: [id])
+  companyId String?
 
-model RiskAssessment {
-  id          String   @id @default(cuid())
-  title       String
-  date        DateTime
-  department  String
-  hazards     Hazard[]
-  status      Status   @default(DRAFT)
-  companyId   String
-  company     Company  @relation(fields: [companyId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
+  documents Document[]
 
-model Hazard {
-  id                String         @id @default(cuid())
-  description       String
-  riskLevel        RiskLevel
-  controlMeasures   String
-  deadline         DateTime?
-  completed        Boolean         @default(false)
-  riskAssessmentId String
-  riskAssessment   RiskAssessment @relation(fields: [riskAssessmentId], references: [id])
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-}
-
-model Incident {
-  id          String   @id @default(cuid())
-  type        IncidentType
-  date        DateTime
-  location    String
-  description String
-  actions     String?
-  status      Status   @default(OPEN)
-  companyId   String
-  company     Company  @relation(fields: [companyId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Training {
-  id          String   @id @default(cuid())
-  title       String
-  date        DateTime
-  trainer     String
-  attendees   String[]
-  topics      String[]
-  duration    Int      // minutes
-  status      Status   @default(PLANNED)
-  companyId   String
-  company     Company  @relation(fields: [companyId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Inspection {
-  id          String   @id @default(cuid())
-  type        String
-  date        DateTime
-  location    String
-  findings    String[]
-  status      Status   @default(OPEN)
-  companyId   String
-  company     Company  @relation(fields: [companyId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model EmergencyPlan {
-  id          String   @id @default(cuid())
-  title       String
-  date        DateTime
-  procedures  String[]
-  contacts    String[]
-  status      Status   @default(DRAFT)
-  companyId   String
-  company     Company  @relation(fields: [companyId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  @@map("users")
+  @@index([companyId])
 }
 
 model Document {
   id          String   @id @default(cuid())
   title       String
-  description String
+  description String?
   fileUrl     String
-  userId      String
-  companyId   String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([companyId])
-}
-
-model RiskDegerlendirme {
-  id        String   @id @default(cuid())
-  baslik    String
-  tarih     DateTime
-  aciklama  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   // İlişkiler
   company   Company @relation(fields: [companyId], references: [id])
   companyId String
   user      User    @relation(fields: [userId], references: [id])
   userId    String
-  riskler   Risk[]
 
-  @@map("risk_degerlendirmeleri")
+  @@map("documents")
   @@index([companyId])
   @@index([userId])
 }
 
-model Risk {
-  id        String   @id @default(cuid())
-  tehlike   String
-  risk      String
-  onlem     String
-  seviye    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // İlişkiler
-  riskDegerlendirme   RiskDegerlendirme @relation(fields: [riskDegerlendirmeId], references: [id], onDelete: Cascade)
-  riskDegerlendirmeId String
-
-  @@map("riskler")
-  @@index([riskDegerlendirmeId])
-}
-
 enum Role {
-  USER
   ADMIN
-  SUPER_ADMIN
-}
-
-enum Status {
-  DRAFT
-  OPEN
-  IN_PROGRESS
-  COMPLETED
-  PLANNED
-  CANCELLED
-}
-
-enum RiskLevel {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
-}
-
-enum IncidentType {
-  ACCIDENT
-  NEAR_MISS
-  HAZARD_REPORT
-}
-
-enum DocumentCategory {
-  RISK_ASSESSMENT
-  EMERGENCY_PLAN
-  TRAINING
-  INSPECTION
-  HEALTH_SURVEILLANCE
-  ACCIDENT_REPORT
-  PROCEDURE
-  OTHER
+  USER
 } 
