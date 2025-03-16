@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, FileText, Users, Activity, Calendar } from "lucide-react";
-import { NavBar } from "@/components/ui/tubelight-navbar";
+import { AnimatedHeader } from "@/components/ui/animated-header";
+import { motion } from "framer-motion";
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -42,51 +43,89 @@ export default function HomePage() {
     },
   ];
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   return (
     <>
-      <NavBar />
-      <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-20 pb-16">
-        <div className="flex flex-col gap-8">
-          <div>
-            <h1 className="text-3xl font-bold">
+      <AnimatedHeader />
+      <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-24 pb-16">
+        <motion.div 
+          className="flex flex-col gap-8"
+          variants={container}
+          initial="hidden"
+          animate="show"
+        >
+          <motion.div variants={item}>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Hoş Geldiniz, {session?.user?.name}
             </h1>
             <p className="text-muted-foreground">
               İSG Yönetim Sistemi'ne hoş geldiniz. Aşağıdaki bağlantıları kullanarak hızlıca işlem yapabilirsiniz.
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {quickLinks.map((link) => (
+            {quickLinks.map((link, index) => (
               (!link.adminOnly || session?.user?.role === "ADMIN") && (
-                <Card key={link.href} className="hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => router.push(link.href)}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">{link.title}</CardTitle>
-                    <link.icon className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                      {link.description}
-                    </p>
-                    <div className="flex items-center pt-4">
-                      <Button variant="link" className="p-0 h-auto font-normal" onClick={() => router.push(link.href)}>
-                        Görüntüle
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <motion.div
+                  key={link.href}
+                  variants={item}
+                  whileHover={{ 
+                    scale: 1.03,
+                    boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+                  }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <Card className="h-full hover:bg-accent/50 transition-colors cursor-pointer border-t-4 border-t-blue-500" onClick={() => router.push(link.href)}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">{link.title}</CardTitle>
+                      <link.icon className="h-4 w-4 text-blue-500" />
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">
+                        {link.description}
+                      </p>
+                      <div className="flex items-center pt-4">
+                        <Button variant="link" className="p-0 h-auto font-normal text-blue-600" onClick={() => router.push(link.href)}>
+                          Görüntüle
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               )
             ))}
           </div>
 
-          <div className="flex justify-center mt-4">
-            <Button onClick={() => router.push("/dashboard")} variant="outline" size="lg">
+          <motion.div 
+            variants={item}
+            className="flex justify-center mt-4"
+          >
+            <Button 
+              onClick={() => router.push("/dashboard")} 
+              variant="outline" 
+              size="lg"
+              className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 border-0"
+            >
               Kontrol Paneline Git
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </main>
     </>
   );
