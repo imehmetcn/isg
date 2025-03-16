@@ -1,127 +1,64 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 
-export function AnimatedBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    // Canvas boyutlarını ayarla
-    const resizeCanvas = () => {
-      if (!canvas) return;
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
-
-    // Parçacıklar için sınıf
-    class Particle {
-      x: number;
-      y: number;
-      size: number;
-      speedX: number;
-      speedY: number;
-      color: string;
-      canvasWidth: number;
-      canvasHeight: number;
-
-      constructor(width: number, height: number) {
-        this.canvasWidth = width;
-        this.canvasHeight = height;
-        this.x = Math.random() * this.canvasWidth;
-        this.y = Math.random() * this.canvasHeight;
-        this.size = Math.random() * 5 + 1;
-        this.speedX = Math.random() * 1 - 0.5;
-        this.speedY = Math.random() * 1 - 0.5;
-        this.color = `rgba(${Math.floor(Math.random() * 100) + 100}, ${Math.floor(
-          Math.random() * 100
-        ) + 100}, ${Math.floor(Math.random() * 255)}, 0.1)`;
-      }
-
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-
-        if (this.x > this.canvasWidth) this.x = 0;
-        else if (this.x < 0) this.x = this.canvasWidth;
-
-        if (this.y > this.canvasHeight) this.y = 0;
-        else if (this.y < 0) this.y = this.canvasHeight;
-      }
-
-      draw() {
-        if (!ctx) return;
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    // Parçacıkları oluştur
-    const particlesArray: Particle[] = [];
-    const numberOfParticles = Math.min(50, Math.floor((canvas.width * canvas.height) / 20000));
-
-    for (let i = 0; i < numberOfParticles; i++) {
-      particlesArray.push(new Particle(canvas.width, canvas.height));
-    }
-
-    // Animasyon döngüsü
-    const animate = () => {
-      if (!canvas || !ctx) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      for (let i = 0; i < particlesArray.length; i++) {
-        particlesArray[i].update();
-        particlesArray[i].draw();
-      }
-      
-      // Parçacıklar arasında çizgiler çiz
-      connectParticles();
-      
-      requestAnimationFrame(animate);
-    };
-
-    // Parçacıklar arasında çizgiler çiz
-    const connectParticles = () => {
-      if (!ctx) return;
-      for (let a = 0; a < particlesArray.length; a++) {
-        for (let b = a; b < particlesArray.length; b++) {
-          const dx = particlesArray[a].x - particlesArray[b].x;
-          const dy = particlesArray[a].y - particlesArray[b].y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          
-          if (distance < 100) {
-            ctx.strokeStyle = `rgba(150, 150, 255, ${0.1 - distance/1000})`;
-            ctx.lineWidth = 0.5;
-            ctx.beginPath();
-            ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
-            ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
-            ctx.stroke();
-          }
-        }
-      }
-    };
-
-    animate();
-
-    return () => {
-      window.removeEventListener("resize", resizeCanvas);
-    };
-  }, []);
-
+export const AnimatedBackground = () => {
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed top-0 left-0 w-full h-full -z-10 opacity-30"
-    />
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      {/* Gradient Blur */}
+      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-blue-50 to-purple-50 opacity-70" />
+      
+      {/* Animated Gradient Blobs */}
+      <motion.div
+        className="absolute top-[-20%] right-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-r from-blue-400/20 to-purple-400/20 blur-3xl"
+        animate={{
+          x: [0, 30, 0],
+          y: [0, -30, 0],
+          scale: [1, 1.1, 1],
+        }}
+        transition={{
+          duration: 15,
+          repeat: Infinity,
+          repeatType: "reverse",
+        }}
+      />
+      
+      <motion.div
+        className="absolute bottom-[-10%] left-[-5%] w-[30%] h-[30%] rounded-full bg-gradient-to-r from-green-400/20 to-blue-400/20 blur-3xl"
+        animate={{
+          x: [0, -20, 0],
+          y: [0, 20, 0],
+          scale: [1, 1.05, 1],
+        }}
+        transition={{
+          duration: 18,
+          repeat: Infinity,
+          repeatType: "reverse",
+        }}
+      />
+      
+      <motion.div
+        className="absolute top-[30%] left-[10%] w-[25%] h-[25%] rounded-full bg-gradient-to-r from-purple-400/10 to-pink-400/10 blur-3xl"
+        animate={{
+          x: [0, 15, 0],
+          y: [0, 15, 0],
+          scale: [1, 1.08, 1],
+        }}
+        transition={{
+          duration: 12,
+          repeat: Infinity,
+          repeatType: "reverse",
+        }}
+      />
+      
+      {/* Dot Pattern */}
+      <div className="absolute inset-0 bg-[url('/dot-pattern.svg')] bg-repeat opacity-10" />
+      
+      {/* Grid Pattern */}
+      <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-repeat opacity-5" />
+    </div>
   );
-} 
+};
+
+export default AnimatedBackground; 
