@@ -2,8 +2,49 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo, Suspense } from "react";
 import { Activity, Users, FileText, Calendar } from "lucide-react";
+import dynamic from "next/dynamic";
+
+// Memoize edilmiş bileşenler
+const StatCard = memo(({ title, value, description, icon: Icon }: {
+  title: string;
+  value: number;
+  description: string;
+  icon: React.ElementType;
+}) => (
+  <Card>
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle className="text-sm font-medium">{title}</CardTitle>
+      <Icon className="h-4 w-4 text-muted-foreground" />
+    </CardHeader>
+    <CardContent>
+      <div className="text-2xl font-bold">{value}</div>
+      <p className="text-xs text-muted-foreground">
+        {description}
+      </p>
+    </CardContent>
+  </Card>
+));
+
+// Dinamik olarak yüklenen bileşenler
+const ActivityList = dynamic(() => import('@/components/dashboard/activity-list'), {
+  loading: () => <div className="animate-pulse space-y-4">
+    {[...Array(3)].map((_, i) => (
+      <div key={i} className="h-16 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
+    ))}
+  </div>,
+  ssr: false
+});
+
+const TrainingList = dynamic(() => import('@/components/dashboard/training-list'), {
+  loading: () => <div className="animate-pulse space-y-4">
+    {[...Array(3)].map((_, i) => (
+      <div key={i} className="h-16 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
+    ))}
+  </div>,
+  ssr: false
+});
 
 interface DashboardStats {
   totalUsers: number;
@@ -20,17 +61,34 @@ export default function DashboardPage() {
     upcomingTrainings: 0,
     activeInspections: 0,
   });
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     // TODO: API'den istatistikleri çek
     // Şimdilik örnek veriler
-    setStats({
-      totalUsers: 25,
-      totalDocuments: 150,
-      upcomingTrainings: 3,
-      activeInspections: 5,
-    });
+    const fetchStats = async () => {
+      // API çağrısı simülasyonu
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      setStats({
+        totalUsers: 25,
+        totalDocuments: 150,
+        upcomingTrainings: 3,
+        activeInspections: 5,
+      });
+      
+      setIsLoaded(true);
+    };
+    
+    fetchStats();
   }, []);
+
+  const statItems = [
+    { title: "Toplam Kullanıcı", value: stats.totalUsers, description: "Sistemde kayıtlı kullanıcı", icon: Users },
+    { title: "Dokümanlar", value: stats.totalDocuments, description: "Toplam doküman sayısı", icon: FileText },
+    { title: "Yaklaşan Eğitimler", value: stats.upcomingTrainings, description: "Önümüzdeki 30 gün içinde", icon: Calendar },
+    { title: "Aktif Denetimler", value: stats.activeInspections, description: "Devam eden denetim sayısı", icon: Activity },
+  ];
 
   return (
     <div className="flex flex-col gap-8">
@@ -44,118 +102,54 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Toplam Kullanıcı</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalUsers}</div>
-            <p className="text-xs text-muted-foreground">
-              Sistemde kayıtlı kullanıcı
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Dokümanlar</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalDocuments}</div>
-            <p className="text-xs text-muted-foreground">
-              Toplam doküman sayısı
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Yaklaşan Eğitimler</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.upcomingTrainings}</div>
-            <p className="text-xs text-muted-foreground">
-              Önümüzdeki 30 gün içinde
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aktif Denetimler</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.activeInspections}</div>
-            <p className="text-xs text-muted-foreground">
-              Devam eden denetim sayısı
-            </p>
-          </CardContent>
-        </Card>
+        {statItems.map((item, index) => (
+          <StatCard 
+            key={index}
+            title={item.title}
+            value={item.value}
+            description={item.description}
+            icon={item.icon}
+          />
+        ))}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Son Aktiviteler</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* TODO: Aktivite listesi eklenecek */}
-              <div className="flex items-center gap-4 rounded-lg border p-4">
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Yeni doküman yüklendi</p>
-                  <p className="text-xs text-muted-foreground">2 saat önce</p>
+      {isLoaded && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+          <Card className="col-span-4">
+            <CardHeader>
+              <CardTitle>Son Aktiviteler</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Suspense fallback={
+                <div className="animate-pulse space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="h-16 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
+                  ))}
                 </div>
-              </div>
-              <div className="flex items-center gap-4 rounded-lg border p-4">
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Denetim raporu oluşturuldu</p>
-                  <p className="text-xs text-muted-foreground">5 saat önce</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 rounded-lg border p-4">
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Yeni kullanıcı eklendi</p>
-                  <p className="text-xs text-muted-foreground">1 gün önce</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              }>
+                <ActivityList />
+              </Suspense>
+            </CardContent>
+          </Card>
 
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>Yaklaşan Eğitimler</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* TODO: Eğitim listesi eklenecek */}
-              <div className="flex items-center gap-4 rounded-lg border p-4">
-                <div className="flex-1">
-                  <p className="text-sm font-medium">İş Güvenliği Temel Eğitimi</p>
-                  <p className="text-xs text-muted-foreground">15 Nisan 2024</p>
+          <Card className="col-span-3">
+            <CardHeader>
+              <CardTitle>Yaklaşan Eğitimler</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Suspense fallback={
+                <div className="animate-pulse space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="h-16 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
+                  ))}
                 </div>
-              </div>
-              <div className="flex items-center gap-4 rounded-lg border p-4">
-                <div className="flex-1">
-                  <p className="text-sm font-medium">İlk Yardım Eğitimi</p>
-                  <p className="text-xs text-muted-foreground">20 Nisan 2024</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 rounded-lg border p-4">
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Yangın Güvenliği</p>
-                  <p className="text-xs text-muted-foreground">25 Nisan 2024</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+              }>
+                <TrainingList />
+              </Suspense>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 } 
