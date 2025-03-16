@@ -1,39 +1,39 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
-export default withAuth(
-  function middleware(req) {
-    // Mevcut yanıtı al veya yeni bir yanıt oluştur
-    const response = NextResponse.next();
-    
-    // Pathname'i header'a ekle
-    response.headers.set('x-pathname', req.nextUrl.pathname);
-
-    // Auth ile ilgili sayfaları kontrol etme
-    const publicPaths = ["/login", "/register", "/forgot-password"];
-    if (publicPaths.includes(req.nextUrl.pathname)) {
-      return response;
-    }
-
-    // Admin sayfaları kontrolü
-    if (
-      req.nextUrl.pathname.startsWith("/admin") &&
-      req.nextauth.token?.role !== "ADMIN"
-    ) {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
-
-    return response;
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => !!token,
-    },
-    pages: {
-      signIn: "/login",
-    },
+// Public sayfaları middleware'den muaf tut
+export default function middleware(req) {
+  // Public paths that don't require authentication
+  const publicPaths = ["/login", "/register", "/forgot-password"];
+  if (publicPaths.includes(req.nextUrl.pathname)) {
+    return NextResponse.next();
   }
-);
+
+  // Diğer tüm sayfalar için auth kontrolü
+  const authMiddleware = withAuth(
+    function auth(req) {
+      // Admin sayfaları kontrolü
+      if (
+        req.nextUrl.pathname.startsWith("/admin") &&
+        req.nextauth?.token?.role !== "ADMIN"
+      ) {
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+
+      return NextResponse.next();
+    },
+    {
+      callbacks: {
+        authorized: ({ token }) => !!token,
+      },
+      pages: {
+        signIn: "/login",
+      },
+    }
+  );
+
+  return authMiddleware(req);
+}
 
 export const config = {
   matcher: [
