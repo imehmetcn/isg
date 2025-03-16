@@ -9,8 +9,8 @@ export async function GET(request: Request) {
         email: true,
         name: true,
         role: true,
-        createdAt: true,
       },
+      take: 10,
     });
 
     return NextResponse.json({ users });
