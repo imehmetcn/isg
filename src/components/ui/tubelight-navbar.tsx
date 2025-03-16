@@ -23,22 +23,22 @@ const navigationItems = [
   },
   {
     name: "Olay Takibi",
-    href: "/features/olay-takibi",
+    href: "/olay-takibi",
     icon: Activity
   },
   {
     name: "Eğitim Yönetimi",
-    href: "/features/egitim-yonetimi",
+    href: "/egitim-yonetimi",
     icon: GraduationCap
   },
   {
     name: "Denetim ve Kontrol",
-    href: "/features/denetim-ve-kontrol",
+    href: "/denetim-ve-kontrol",
     icon: ClipboardCheck
   },
   {
     name: "Acil Durum",
-    href: "/features/acil-durum-ve-eylem-plani",
+    href: "/acil-durum",
     icon: Siren
   },
 ]
@@ -118,13 +118,7 @@ export function NavBar({ className }: NavBarProps) {
   }
 
   return (
-    <motion.nav
-      variants={{
-        visible: { y: 0 },
-        hidden: { y: "-100%" },
-      }}
-      animate={scrollDirection === "down" && scrolled ? "hidden" : "visible"}
-      transition={{ duration: 0.2 }}
+    <nav
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         scrolled
@@ -150,14 +144,9 @@ export function NavBar({ className }: NavBarProps) {
                   )}
                 />
               </div>
-              <motion.span
-                initial={false}
-                animate={{ width: scrolled ? 0 : "auto", opacity: scrolled ? 0 : 1 }}
-                transition={{ duration: 0.3 }}
-                className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-indigo-400 overflow-hidden whitespace-nowrap"
-              >
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-indigo-400 overflow-hidden whitespace-nowrap">
                 İSG Yönetim
-              </motion.span>
+              </span>
             </Link>
           </div>
 
@@ -453,6 +442,6 @@ export function NavBar({ className }: NavBarProps) {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </nav>
   )
 } 
