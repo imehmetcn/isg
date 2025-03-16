@@ -21,23 +21,14 @@ export default function MainLayout({
           </div>
           
           <nav className="hidden md:flex space-x-6 mx-4">
-            <Link href="/dashboard" className="text-gray-700 hover:text-blue-500 font-medium">
-              Anasayfa
-            </Link>
-            <Link href="/dashboard" className="text-blue-500 border-b-2 border-blue-500 font-medium">
+            <Link href="/dashboard" className="text-blue-500 font-medium">
               Dashboard
             </Link>
-            <Link href="/isg-yonetimi" className="text-gray-700 hover:text-blue-500 font-medium">
-              İSG Yönetimi
+            <Link href="/documents" className="text-gray-700 hover:text-blue-500 font-medium">
+              Belgeler
             </Link>
-            <Link href="/kayitlar" className="text-gray-700 hover:text-blue-500 font-medium">
-              Kayıtlar
-            </Link>
-            <Link href="/raporlar" className="text-gray-700 hover:text-blue-500 font-medium">
-              Raporlar
-            </Link>
-            <Link href="/ayarlar" className="text-gray-700 hover:text-blue-500 font-medium">
-              Ayarlar
+            <Link href="/risk-degerlendirme" className="text-gray-700 hover:text-blue-500 font-medium">
+              Risk
             </Link>
           </nav>
           
