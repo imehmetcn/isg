@@ -22,12 +22,6 @@ import { useState, useEffect, lazy, Suspense } from "react";
 // Lazy load the animated background for better initial load performance
 const AnimatedBackground = lazy(() => import("@/components/ui/animated-background").then(mod => ({ default: mod.AnimatedBackground })));
 
-// Lazy load the stats section
-const StatsSection = lazy(() => import("@/components/dashboard/stats-section").then(mod => ({ default: mod.StatsSection })));
-
-// Lazy load the quick actions menu
-const QuickActionsMenu = lazy(() => import("@/components/dashboard/quick-actions-menu").then(mod => ({ default: mod.QuickActionsMenu })));
-
 export default function HomePage() {
   const { data: session } = useSession();
   const router = useRouter();
@@ -109,39 +103,33 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          {/* İstatistik Kartları - Lazy loaded */}
-          {isLoaded && (
-            <Suspense fallback={
-              <div className="h-32 w-full bg-gray-100 animate-pulse rounded-lg"></div>
-            }>
-              <motion.div variants={item}>
-                <h2 className="text-2xl font-semibold mb-4">Genel Bakış</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {statsItems.map((stat, index) => (
-                    <motion.div
-                      key={index}
-                      whileHover={{ scale: 1.03 }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                    >
-                      <Card className="border-0 shadow-md">
-                        <CardContent className="p-6">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                              <h3 className="text-3xl font-bold mt-1">{stat.value}</h3>
-                            </div>
-                            <div className={`p-3 rounded-full bg-gradient-to-r ${stat.color} text-white`}>
-                              <stat.icon size={24} />
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            </Suspense>
-          )}
+          {/* İstatistik Kartları */}
+          <motion.div variants={item}>
+            <h2 className="text-2xl font-semibold mb-4">Genel Bakış</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {statsItems.map((stat, index) => (
+                <motion.div
+                  key={index}
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <Card className="border-0 shadow-md">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                          <h3 className="text-3xl font-bold mt-1">{stat.value}</h3>
+                        </div>
+                        <div className={`p-3 rounded-full bg-gradient-to-r ${stat.color} text-white`}>
+                          <stat.icon size={24} />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
 
           <motion.div 
             variants={item}
@@ -160,56 +148,52 @@ export default function HomePage() {
         </motion.div>
       </main>
 
-      {/* Hızlı Eylemler Menüsü - Lazy loaded */}
-      {isLoaded && (
-        <Suspense fallback={null}>
-          <div className="fixed bottom-6 right-6 z-50">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 1, type: "spring" }}
-            >
-              <Button
-                onClick={() => setShowActions(!showActions)}
-                className="h-14 w-14 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:shadow-xl transition-shadow"
-              >
-                <PlusCircle size={24} />
-              </Button>
-            </motion.div>
+      {/* Hızlı Eylemler Menüsü */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 1, type: "spring" }}
+        >
+          <Button
+            onClick={() => setShowActions(!showActions)}
+            className="h-14 w-14 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:shadow-xl transition-shadow"
+          >
+            <PlusCircle size={24} />
+          </Button>
+        </motion.div>
 
-            {showActions && (
-              <motion.div 
-                className="absolute bottom-16 right-0 mb-2 space-y-2"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-              >
-                {quickActions.map((action, index) => (
-                  (!action.adminOnly || session?.user?.role === "ADMIN") && (
-                    <motion.div
-                      key={index}
-                      className="flex items-center justify-end space-x-2"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <span className="bg-white text-gray-800 px-3 py-2 rounded-lg shadow-md text-sm font-medium">
-                        {action.title}
-                      </span>
-                      <Button
-                        onClick={() => router.push(action.href)}
-                        className={`h-10 w-10 rounded-full ${action.color} text-white shadow-md`}
-                      >
-                        <action.icon size={18} />
-                      </Button>
-                    </motion.div>
-                  )
-                ))}
-              </motion.div>
-            )}
-          </div>
-        </Suspense>
-      )}
+        {showActions && (
+          <motion.div 
+            className="absolute bottom-16 right-0 mb-2 space-y-2"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+          >
+            {quickActions.map((action, index) => (
+              (!action.adminOnly || session?.user?.role === "ADMIN") && (
+                <motion.div
+                  key={index}
+                  className="flex items-center justify-end space-x-2"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <span className="bg-white text-gray-800 px-3 py-2 rounded-lg shadow-md text-sm font-medium">
+                    {action.title}
+                  </span>
+                  <Button
+                    onClick={() => router.push(action.href)}
+                    className={`h-10 w-10 rounded-full ${action.color} text-white shadow-md`}
+                  >
+                    <action.icon size={18} />
+                  </Button>
+                </motion.div>
+              )
+            ))}
+          </motion.div>
+        )}
+      </div>
     </>
   );
 } 
