@@ -8,14 +8,8 @@ import { cn } from "@/lib/utils"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
 
-const navigationItems = [
-  { name: "Ana Sayfa", href: "/" },
-  { name: "Risk Değerlendirme", href: "/risk-degerlendirme" },
-  { name: "Olay Takibi", href: "/olay-takibi" },
-  { name: "Eğitim Yönetimi", href: "/egitim-yonetimi" },
-  { name: "Denetim ve Kontrol", href: "/denetim-ve-kontrol" },
-  { name: "Acil Durum", href: "/acil-durum" },
-]
+// Hızlı erişim menüsü kaldırıldı
+const navigationItems = []
 
 export function NavBar({ className }: { className?: string }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -43,23 +37,7 @@ export function NavBar({ className }: { className?: string }) {
               </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              {navigationItems.map((item) => {
-                const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium",
-                      isActive
-                        ? "border-blue-500 text-gray-900"
-                        : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                    )}
-                  >
-                    {item.name}
-                  </Link>
-                )
-              })}
+              {/* Hızlı erişim menüsü kaldırıldı */}
               
               {isAdmin && (
                 <Link
@@ -138,24 +116,7 @@ export function NavBar({ className }: { className?: string }) {
       {isMenuOpen && (
         <div className="sm:hidden">
           <div className="pt-2 pb-3 space-y-1">
-            {navigationItems.map((item) => {
-              const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "block pl-3 pr-4 py-2 border-l-4 text-base font-medium",
-                    isActive
-                      ? "bg-blue-50 border-blue-500 text-blue-700"
-                      : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-                  )}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              )
-            })}
+            {/* Hızlı erişim menüsü kaldırıldı */}
             
             {isAdmin && (
               <Link
