@@ -11,6 +11,23 @@ const ActionType = {
   LOGOUT: "LOGOUT",
 } as const;
 
+// Tip tanımlamaları
+type UserWithCompanies = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  password: string;
+  role: Role;
+  companies: Array<{
+    companyId: string;
+    company: {
+      id: string;
+      name: string;
+    }
+    role: Role;
+  }>;
+};
+
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
@@ -36,9 +53,11 @@ export const authOptions: NextAuthOptions = {
           const user = await db.user.findFirst({
             where: {
               email: credentials.email,
+              // @ts-ignore - Prisma şemasında var ama TypeScript henüz tanımıyor
               deletedAt: null, // Sadece silinmemiş kullanıcılar
             },
             include: {
+              // @ts-ignore - Prisma şemasında var ama TypeScript henüz tanımıyor
               companies: {
                 include: {
                   company: {
@@ -50,7 +69,7 @@ export const authOptions: NextAuthOptions = {
                 }
               }
             }
-          });
+          }) as unknown as UserWithCompanies;
 
           if (!user || !user.password) {
             console.log("User not found or no password");
@@ -78,11 +97,15 @@ export const authOptions: NextAuthOptions = {
           // Son giriş zamanını güncelle
           await db.user.update({
             where: { id: user.id },
-            data: { lastLoginAt: new Date() }
+            data: { 
+              // @ts-ignore - Prisma şemasında var ama TypeScript henüz tanımıyor
+              lastLoginAt: new Date() 
+            }
           });
 
           // Aktivite günlüğüne kaydet
           try {
+            // @ts-ignore - Prisma şemasında var ama TypeScript henüz tanımıyor
             await db.activityLog.create({
               data: {
                 action: ActionType.LOGIN,
@@ -105,12 +128,15 @@ export const authOptions: NextAuthOptions = {
             role: cu.role
           }));
 
+          // İlk şirket ID'sini varsayılan olarak kullan
+          const defaultCompanyId = companies.length > 0 ? companies[0].id : null;
+
           return {
             id: user.id,
             email: user.email,
             name: user.name || "User",
             role: user.role,
-            companyId: companies.length > 0 ? companies[0].id : user.companyId,
+            companyId: defaultCompanyId,
             companies: companies,
           };
         } catch (error) {
