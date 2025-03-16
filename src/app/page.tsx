@@ -61,7 +61,7 @@ export default function HomePage() {
   return (
     <>
       <AnimatedHeader />
-      <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-24 pb-16">
+      <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-20 pb-16">
         <motion.div 
           className="flex flex-col gap-8"
           variants={container}
