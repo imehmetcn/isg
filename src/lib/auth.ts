@@ -12,7 +12,6 @@ declare module "next-auth" {
     email: string;
     name: string;
     role: Role;
-    companyId: string | null;
   }
 
   interface Session {
@@ -76,7 +75,6 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.name,
             role: user.role,
-            companyId: user.companyId,
           };
         } catch (error) {
           console.error("Auth error:", error);
