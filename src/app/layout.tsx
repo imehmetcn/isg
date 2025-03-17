@@ -46,11 +46,7 @@ export default async function RootLayout({
         >
           <SessionProvider session={session}>
             <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-            <div className="flex flex-col">
-              <main className="flex-grow">
-                {children}
-              </main>
-            </div>
+            {children}
             <Toaster />
           </SessionProvider>
         </ThemeProvider>
