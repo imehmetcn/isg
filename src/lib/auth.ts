@@ -2,14 +2,15 @@ import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { db } from "./db"
 import bcrypt from "bcryptjs"
-import { Role } from "@prisma/client"
+import { RequestInternal } from "next-auth"
 
 // User tipini tanımlayalım
 type User = {
   id: string;
   email: string;
   name: string;
-  role: Role;
+  role: string;
+  companyId: string | null;
 };
 
 export const authOptions: NextAuthOptions = {
@@ -27,7 +28,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {
+      async authorize(credentials, req: Pick<RequestInternal, "query" | "body" | "headers" | "method">) {
         try {
           if (!credentials?.email || !credentials?.password) {
             return null;
@@ -58,6 +59,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email || "",
             name: user.name || "User",
             role: user.role,
+            companyId: null,
           } as User;
         } catch (error) {
           console.error("Auth error:", error);
@@ -77,10 +79,11 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string;
-        session.user.role = token.role as Role;
+        session.user.role = token.role as string;
       }
       return session;
     },
   },
   debug: process.env.NODE_ENV === 'development',
+} 
 } 
