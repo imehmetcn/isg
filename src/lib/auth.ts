@@ -101,11 +101,31 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Eğer URL aynı origin'den geliyorsa, olduğu gibi kullan
-      if (url.startsWith(baseUrl)) return url;
-      // Eğer URL bir path ise (/ ile başlıyorsa), baseUrl ile birleştir
-      else if (url.startsWith("/")) return `${baseUrl}${url}`;
-      // Diğer durumda dashboard'a yönlendir
+      // URL'i decode et
+      const decodedUrl = decodeURIComponent(url);
+      
+      // Callback URL'i kontrol et
+      if (decodedUrl.includes('callbackUrl')) {
+        const callbackUrl = new URL(decodedUrl).searchParams.get('callbackUrl');
+        if (callbackUrl) {
+          // Eğer callback URL bir path ise
+          if (callbackUrl.startsWith('/')) {
+            return `${baseUrl}${callbackUrl}`;
+          }
+        }
+      }
+
+      // Eğer URL aynı origin'den geliyorsa
+      if (decodedUrl.startsWith(baseUrl)) {
+        return decodedUrl;
+      }
+
+      // Eğer URL bir path ise
+      if (decodedUrl.startsWith('/')) {
+        return `${baseUrl}${decodedUrl}`;
+      }
+
+      // Varsayılan olarak dashboard'a yönlendir
       return `${baseUrl}/dashboard`;
     },
   },

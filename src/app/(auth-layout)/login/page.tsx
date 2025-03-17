@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { AtSign, Lock, LogIn, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   
@@ -19,6 +20,14 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Oturum durumunu kontrol et
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push(callbackUrl);
+      router.refresh();
+    }
+  }, [status, router, callbackUrl]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,7 +39,6 @@ export default function LoginPage() {
         email,
         password,
         redirect: false,
-        callbackUrl,
       });
 
       if (result?.error) {
@@ -39,9 +47,9 @@ export default function LoginPage() {
         return;
       }
 
-      // Başarılı giriş sonrası yönlendirme
       if (result?.ok) {
-        window.location.href = callbackUrl;
+        router.push(callbackUrl);
+        router.refresh();
       }
     } catch (error) {
       setError("Bir hata oluştu. Lütfen tekrar deneyin.");
