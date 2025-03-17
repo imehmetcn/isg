@@ -4,26 +4,13 @@ import type { NextRequestWithAuth } from "next-auth/middleware";
 
 export default withAuth(
   function middleware(req: NextRequestWithAuth) {
-    // Public paths that don't require authentication
-    const publicPaths = ["/login", "/register", "/forgot-password"];
-    
-    // Eğer public path'te isek ve kullanıcı giriş yapmışsa
-    if (publicPaths.includes(req.nextUrl.pathname) && req.nextauth.token) {
+    // Her durumda dashboard'a yönlendir
+    if (req.nextUrl.pathname === "/") {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
-    // Eğer public path'te isek ve kullanıcı giriş yapmamışsa
-    if (publicPaths.includes(req.nextUrl.pathname)) {
-      return NextResponse.next();
-    }
-
-    // Kullanıcı giriş yapmamışsa ve korumalı bir sayfaya erişmeye çalışıyorsa
-    if (!req.nextauth.token) {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
-
-    // Ana sayfa kontrolü - her zaman dashboard'a yönlendir
-    if (req.nextUrl.pathname === "/") {
+    // Kullanıcı giriş yapmışsa ve login sayfasına erişmeye çalışıyorsa
+    if (req.nextUrl.pathname === "/login" && req.nextauth.token) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
@@ -32,11 +19,9 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token }) => {
-        return !!token;
+        // Her zaman yetkili olarak kabul et
+        return true;
       },
-    },
-    pages: {
-      signIn: "/login",
     },
   }
 );

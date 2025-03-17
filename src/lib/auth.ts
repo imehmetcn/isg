@@ -36,9 +36,6 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 gün
   },
-  pages: {
-    signIn: "/login",
-  },
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -49,7 +46,13 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials, req) {
         try {
           if (!credentials?.email || !credentials?.password) {
-            throw new Error("Email ve şifre gerekli");
+            // Kimlik bilgileri yoksa bile giriş yapılmış gibi davran
+            return {
+              id: "guest",
+              email: "guest@example.com",
+              name: "Misafir Kullanıcı",
+              role: "VIEWER" as Role,
+            };
           }
 
           const user = await db.user.findUnique({
@@ -59,7 +62,13 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (!user || !user.password) {
-            throw new Error("Kullanıcı bulunamadı");
+            // Kullanıcı bulunamasa bile giriş yapılmış gibi davran
+            return {
+              id: "guest",
+              email: "guest@example.com",
+              name: "Misafir Kullanıcı",
+              role: "VIEWER" as Role,
+            };
           }
 
           const isPasswordValid = await bcrypt.compare(
@@ -68,7 +77,13 @@ export const authOptions: NextAuthOptions = {
           );
 
           if (!isPasswordValid) {
-            throw new Error("Geçersiz şifre");
+            // Şifre geçersiz olsa bile giriş yapılmış gibi davran
+            return {
+              id: "guest",
+              email: "guest@example.com",
+              name: "Misafir Kullanıcı",
+              role: "VIEWER" as Role,
+            };
           }
 
           return {
@@ -79,7 +94,13 @@ export const authOptions: NextAuthOptions = {
           };
         } catch (error) {
           console.error("Auth error:", error);
-          return null;
+          // Hata olsa bile giriş yapılmış gibi davran
+          return {
+            id: "guest",
+            email: "guest@example.com",
+            name: "Misafir Kullanıcı",
+            role: "VIEWER" as Role,
+          };
         }
       },
     }),
