@@ -7,7 +7,7 @@ declare module "next-auth" {
     email: string
     name: string
     role: Role
-    companyId: string | null
+    companyId?: string | null
     companies?: Array<{id: string, name: string, role: Role}>
   }
 
@@ -15,7 +15,7 @@ declare module "next-auth" {
     user: User & {
       id: string
       role: Role
-      companyId: string | null
+      companyId?: string | null
       companies?: Array<{id: string, name: string, role: Role}>
     }
   }

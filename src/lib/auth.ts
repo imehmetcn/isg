@@ -12,6 +12,7 @@ declare module "next-auth" {
     email: string;
     name: string;
     role: Role;
+    companyId?: string | null; // Opsiyonel olarak işaretlendi
   }
 
   interface Session {
