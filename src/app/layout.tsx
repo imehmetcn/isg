@@ -6,8 +6,6 @@ import { Toaster } from "@/components/ui/toaster"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { SessionProvider } from "@/components/session-provider"
-import { Navbar } from "@/components/layout/Navbar"
-import { Footer } from "@/components/layout/Footer"
 import { cn } from '@/lib/utils'
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin"
 import { extractRouterConfig } from "uploadthing/server"
@@ -50,11 +48,9 @@ export default async function RootLayout({
           <SessionProvider session={session}>
             <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
             <div className="min-h-screen flex flex-col">
-              <Navbar />
               <main className="flex-grow">
                 {children}
               </main>
-              <Footer />
             </div>
             <Toaster />
           </SessionProvider>
