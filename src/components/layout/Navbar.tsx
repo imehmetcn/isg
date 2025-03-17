@@ -1,194 +1,259 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { Menu, X, ChevronDown, LogOut, LogIn } from 'lucide-react';
-import { useSession, signOut } from 'next-auth/react';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
+import { 
+  Home, 
+  Users, 
+  FileText, 
+  AlertTriangle, 
+  Calendar, 
+  Settings, 
+  LogOut, 
+  Menu, 
+  X,
+  Bell,
+  Search,
+  ChevronDown
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const navigation = [
-  { name: 'Ana Sayfa', href: '/' },
-  { name: 'Hakkımızda', href: '/hakkimizda' },
-  { 
-    name: 'Hizmetlerimiz', 
-    href: '#',
-    children: [
-      { name: 'Risk Değerlendirme', href: '/hizmetler/risk-degerlendirme' },
-      { name: 'Doküman Yönetimi', href: '/hizmetler/dokuman-yonetimi' },
-      { name: 'Eğitim Takibi', href: '/hizmetler/egitim-takibi' },
-      { name: 'Denetim ve Kontrol', href: '/hizmetler/denetim-kontrol' },
-      { name: 'Acil Durum Yönetimi', href: '/hizmetler/acil-durum-yonetimi' },
-    ]
-  },
-  { name: 'İletişim', href: '/iletisim' },
+const navItems = [
+  { name: "Dashboard", href: "/dashboard", icon: Home },
+  { name: "Firmalar", href: "/companies", icon: Users },
+  { name: "Belgeler", href: "/documents", icon: FileText },
+  { name: "Risk Değerlendirmeleri", href: "/risk-assessments", icon: AlertTriangle },
+  { name: "Takvim", href: "/calendar", icon: Calendar },
 ];
 
-export const Navbar = () => {
-  const { data: session, status } = useSession();
+export function Navbar() {
+  const { data: session } = useSession();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false);
 
-  const toggleDropdown = (name: string) => {
-    setOpenDropdown(openDropdown === name ? null : name);
-  };
+  // Scroll olduğunda navbar'ın görünümünü değiştir
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
 
-  const handleSignOut = () => {
-    signOut({ callbackUrl: '/' });
-  };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <nav className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+    <nav
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        scrolled 
+          ? "bg-white/90 backdrop-blur-md shadow-sm" 
+          : "bg-white"
+      )}
+    >
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo ve Mobil Menü Butonu */}
           <div className="flex items-center">
-            <Link href="/" className="flex-shrink-0 flex items-center">
-              <span className="text-blue-600 font-bold text-xl">İSG Platform</span>
-            </Link>
-          </div>
-          
-          {/* Desktop menu */}
-          <div className="hidden md:ml-6 md:flex md:items-center md:space-x-4">
-            {navigation.map((item) => (
-              <div key={item.name} className="relative">
-                {item.children ? (
-                  <div>
-                    <button
-                      onClick={() => toggleDropdown(item.name)}
-                      className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 flex items-center"
-                    >
-                      {item.name}
-                      <ChevronDown className="ml-1 h-4 w-4" />
-                    </button>
-                    
-                    {openDropdown === item.name && (
-                      <div className="absolute z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                        <div className="py-1" role="menu" aria-orientation="vertical">
-                          {item.children.map((child) => (
-                            <Link
-                              key={child.name}
-                              href={child.href}
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                              role="menuitem"
-                            >
-                              {child.name}
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Link
-                    href={item.href}
-                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
-                  >
-                    {item.name}
-                  </Link>
-                )}
-              </div>
-            ))}
-          </div>
-          
-          <div className="hidden md:ml-6 md:flex md:items-center">
-            {status === 'authenticated' ? (
-              <button
-                onClick={handleSignOut}
-                className="ml-8 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Çıkış Yap
-              </button>
-            ) : (
-              <Link
-                href="/login"
-                className="ml-8 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-              >
-                <LogIn className="mr-2 h-4 w-4" />
-                Giriş Yap
+            <div className="flex-shrink-0 flex items-center">
+              <Link href="/dashboard" className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg flex items-center justify-center text-white font-bold">
+                  İSG
+                </div>
+                <span className="font-bold text-lg text-gray-900">İSG Yönetim</span>
               </Link>
-            )}
+            </div>
+            <div className="hidden md:block ml-10">
+              <div className="flex items-center space-x-4">
+                {navItems.map((item) => {
+                  const isActive = pathname === item.href;
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={cn(
+                        "px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors",
+                        isActive
+                          ? "text-blue-600 bg-blue-50"
+                          : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+                      )}
+                    >
+                      <Icon className={cn("mr-2 h-4 w-4", isActive ? "text-blue-600" : "text-gray-500")} />
+                      {item.name}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           </div>
-          
-          {/* Mobile menu button */}
-          <div className="flex items-center md:hidden">
+
+          {/* Sağ Taraf - Arama, Bildirimler ve Profil */}
+          <div className="hidden md:flex items-center gap-4">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Ara..."
+                className="pl-10 pr-4 py-2 w-64 rounded-md border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            
+            <button className="relative p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-gray-100 transition-colors">
+              <Bell className="h-5 w-5" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            
+            <div className="relative ml-3">
+              <div className="flex items-center gap-3">
+                <div className="flex flex-col items-end">
+                  <span className="text-sm font-medium text-gray-900">
+                    {session?.user?.name || "Kullanıcı"}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {session?.user?.email || "kullanici@example.com"}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setIsOpen(!isOpen)}
+                  className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
+                >
+                  <Avatar className="h-8 w-8 border border-gray-200">
+                    <AvatarImage src={session?.user?.image || ""} alt={session?.user?.name || "Kullanıcı"} />
+                    <AvatarFallback className="bg-blue-100 text-blue-600">
+                      {session?.user?.name?.charAt(0) || "K"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+              </div>
+              
+              {isOpen && (
+                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1">
+                  <Link
+                    href="/profile"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Profil
+                  </Link>
+                  <Link
+                    href="/settings"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Ayarlar
+                  </Link>
+                  <button
+                    onClick={() => signOut()}
+                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                  >
+                    Çıkış Yap
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Mobil Menü Butonu */}
+          <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 focus:outline-none"
             >
-              <span className="sr-only">Menüyü aç</span>
               {isOpen ? (
-                <X className="block h-6 w-6" aria-hidden="true" />
+                <X className="block h-6 w-6" />
               ) : (
-                <Menu className="block h-6 w-6" aria-hidden="true" />
+                <Menu className="block h-6 w-6" />
               )}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobil Menü */}
       {isOpen && (
-        <div className="md:hidden">
-          <div className="pt-2 pb-3 space-y-1">
-            {navigation.map((item) => (
-              <div key={item.name}>
-                {item.children ? (
-                  <div>
-                    <button
-                      onClick={() => toggleDropdown(item.name)}
-                      className="w-full flex items-center justify-between px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
-                    >
-                      {item.name}
-                      <ChevronDown className={`ml-1 h-4 w-4 ${openDropdown === item.name ? 'transform rotate-180' : ''}`} />
-                    </button>
-                    
-                    {openDropdown === item.name && (
-                      <div className="pl-4 space-y-1">
-                        {item.children.map((child) => (
-                          <Link
-                            key={child.name}
-                            href={child.href}
-                            className="block px-3 py-2 text-base font-medium text-gray-500 hover:text-blue-600 hover:bg-gray-50"
-                          >
-                            {child.name}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Link
-                    href={item.href}
-                    className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
-                  >
-                    {item.name}
-                  </Link>
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="pt-4 pb-3 border-t border-gray-200">
-            <div className="flex items-center px-4">
-              {status === 'authenticated' ? (
-                <button
-                  onClick={handleSignOut}
-                  className="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-600 hover:bg-red-700"
+        <div className="md:hidden bg-white border-t border-gray-200">
+          <div className="px-2 pt-2 pb-3 space-y-1">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href;
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    "block px-3 py-2 rounded-md text-base font-medium flex items-center",
+                    isActive
+                      ? "text-blue-600 bg-blue-50"
+                      : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+                  )}
+                  onClick={() => setIsOpen(false)}
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
+                  <Icon className={cn("mr-3 h-5 w-5", isActive ? "text-blue-600" : "text-gray-500")} />
+                  {item.name}
+                </Link>
+              );
+            })}
+            <div className="pt-4 pb-3 border-t border-gray-200">
+              <div className="flex items-center px-3">
+                <div className="flex-shrink-0">
+                  <Avatar className="h-10 w-10 border border-gray-200">
+                    <AvatarImage src={session?.user?.image || ""} alt={session?.user?.name || "Kullanıcı"} />
+                    <AvatarFallback className="bg-blue-100 text-blue-600">
+                      {session?.user?.name?.charAt(0) || "K"}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium text-gray-800">
+                    {session?.user?.name || "Kullanıcı"}
+                  </div>
+                  <div className="text-sm font-medium text-gray-500">
+                    {session?.user?.email || "kullanici@example.com"}
+                  </div>
+                </div>
+                <button className="ml-auto p-1 rounded-full text-gray-500 hover:text-blue-600 hover:bg-gray-100">
+                  <Bell className="h-6 w-6" />
+                </button>
+              </div>
+              <div className="mt-3 px-2 space-y-1">
+                <Link
+                  href="/profile"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Profil
+                </Link>
+                <Link
+                  href="/settings"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Ayarlar
+                </Link>
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    signOut();
+                  }}
+                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-gray-50"
+                >
                   Çıkış Yap
                 </button>
-              ) : (
-                <Link
-                  href="/login"
-                  className="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700"
-                >
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Giriş Yap
-                </Link>
-              )}
+              </div>
             </div>
           </div>
         </div>
       )}
     </nav>
   );
-}; 
+}
