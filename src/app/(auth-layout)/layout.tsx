@@ -7,6 +7,9 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { SessionProvider } from "@/components/session-provider"
 import { cn } from '@/lib/utils'
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin"
+import { extractRouterConfig } from "uploadthing/server"
+import { ourFileRouter } from "@/app/api/uploadthing/core"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -15,8 +18,7 @@ export const metadata: Metadata = {
   description: 'İş Sağlığı ve Güvenliği Yönetim Sistemi Giriş Sayfası',
 }
 
-// Bu layout, RootLayout'u override eder
-export default async function LoginLayout({
+export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -41,6 +43,7 @@ export default async function LoginLayout({
           disableTransitionOnChange
         >
           <SessionProvider session={session}>
+            <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
             <div className="min-h-screen flex items-center justify-center">
               {children}
             </div>
