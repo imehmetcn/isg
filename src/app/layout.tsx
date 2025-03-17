@@ -37,7 +37,7 @@ export default async function RootLayout({
       </head>
       <body className={cn(
         inter.className,
-        "h-screen bg-white font-sans antialiased"
+        "bg-white font-sans antialiased"
       )}>
         <ThemeProvider
           attribute="class"
@@ -46,7 +46,7 @@ export default async function RootLayout({
         >
           <SessionProvider session={session}>
             <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-            <div className="h-full flex flex-col">
+            <div className="flex flex-col">
               <main className="flex-grow">
                 {children}
               </main>
