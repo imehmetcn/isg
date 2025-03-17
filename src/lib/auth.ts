@@ -3,15 +3,33 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { db } from "./db"
 import bcrypt from "bcryptjs"
 import { RequestInternal } from "next-auth"
+import { Role } from "@prisma/client"
 
-// User tipini tanımlayalım
-type User = {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  companyId: string | null;
-};
+// User tipini next-auth'un beklediği şekilde genişletelim
+declare module "next-auth" {
+  interface User {
+    id: string;
+    email: string;
+    name: string;
+    role: Role;
+    companyId: string | null;
+  }
+
+  interface Session {
+    user: User & {
+      id: string;
+      role: Role;
+    };
+  }
+}
+
+// JWT için tip tanımlaması
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    role: Role;
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -28,7 +46,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials, req: Pick<RequestInternal, "query" | "body" | "headers" | "method">) {
+      async authorize(credentials, req) {
         try {
           if (!credentials?.email || !credentials?.password) {
             return null;
@@ -60,7 +78,7 @@ export const authOptions: NextAuthOptions = {
             name: user.name || "User",
             role: user.role,
             companyId: null,
-          } as User;
+          };
         } catch (error) {
           console.error("Auth error:", error);
           return null;
@@ -78,8 +96,8 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
+        session.user.id = token.id;
+        session.user.role = token.role;
       }
       return session;
     },
