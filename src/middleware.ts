@@ -10,6 +10,11 @@ export default withAuth(
       return NextResponse.next();
     }
 
+    // Ana sayfa kontrolü - token yoksa login'e yönlendir
+    if (req.nextUrl.pathname === "/" && !req.nextauth.token) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+
     // Admin sayfaları kontrolü
     if (
       req.nextUrl.pathname.startsWith("/admin") &&
@@ -23,10 +28,13 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        // Eğer token yoksa ve login sayfasında değilsek, otomatik giriş yap
-        if (!token && !req.nextUrl.pathname.includes('/login')) {
+        // Public paths kontrolü
+        const publicPaths = ["/login", "/register", "/forgot-password"];
+        if (publicPaths.includes(req.nextUrl.pathname)) {
           return true;
         }
+        
+        // Token varsa erişime izin ver
         return !!token;
       },
     },
