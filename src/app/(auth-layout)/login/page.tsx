@@ -38,7 +38,7 @@ export default function LoginPage() {
 
       // Başarılı giriş sonrası yönlendirme
       const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
-      router.push(callbackUrl);
+      window.location.href = callbackUrl;
     } catch (error) {
       setError("Bir hata oluştu. Lütfen tekrar deneyin.");
       setIsLoading(false);
