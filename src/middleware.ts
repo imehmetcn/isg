@@ -9,11 +9,6 @@ export default withAuth(
     
     // Eğer public path'te isek ve kullanıcı giriş yapmışsa
     if (publicPaths.includes(req.nextUrl.pathname) && req.nextauth.token) {
-      // Callback URL varsa ona yönlendir, yoksa dashboard'a
-      const callbackUrl = req.nextUrl.searchParams.get("callbackUrl");
-      if (callbackUrl && callbackUrl.startsWith("/")) {
-        return NextResponse.redirect(new URL(callbackUrl, req.url));
-      }
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
@@ -24,9 +19,7 @@ export default withAuth(
 
     // Kullanıcı giriş yapmamışsa ve korumalı bir sayfaya erişmeye çalışıyorsa
     if (!req.nextauth.token) {
-      const loginUrl = new URL("/login", req.url);
-      loginUrl.searchParams.set("callbackUrl", req.nextUrl.pathname);
-      return NextResponse.redirect(loginUrl);
+      return NextResponse.redirect(new URL("/login", req.url));
     }
 
     // Ana sayfa kontrolü
@@ -47,7 +40,7 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token }) => {
-        return true; // Authorization'ı middleware function'da handle ediyoruz
+        return !!token;
       },
     },
     pages: {
