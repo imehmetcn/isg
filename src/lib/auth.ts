@@ -100,11 +100,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Eğer URL dashboard'a yönlendiriyorsa veya callbackUrl dashboard ise
-      if (url.includes('/dashboard') || url === baseUrl) {
-        return `${baseUrl}/dashboard`;
-      }
-      // Diğer durumlarda dashboard'a yönlendir
+      // Her durumda dashboard'a yönlendir
       return `${baseUrl}/dashboard`;
     },
   },
