@@ -25,21 +25,18 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
+      // Doğrudan yönlendirme ile giriş yap
       const result = await signIn("credentials", {
         email,
         password,
-        redirect: false,
+        callbackUrl: callbackUrl,
+        redirect: true,
       });
-
+      
+      // Bu kısım sadece redirect: false olduğunda çalışır
       if (result?.error) {
         setError("Geçersiz email veya şifre");
         setIsLoading(false);
-        return;
-      }
-
-      if (result?.ok) {
-        // Başarılı giriş sonrası doğrudan yönlendirme
-        window.location.href = callbackUrl;
       }
     } catch (error) {
       setError("Bir hata oluştu. Lütfen tekrar deneyin.");
