@@ -158,16 +158,6 @@ export default function LoginPage() {
             </Button>
           </form>
         </CardContent>
-        
-        <CardFooter className="relative z-10 flex justify-center pb-8 pt-0">
-          <Link 
-            href="/" 
-            className="text-sm text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center group"
-          >
-            <ArrowLeft className="mr-1 h-4 w-4 transition-transform duration-200 group-hover:-translate-x-1" />
-            Ana Sayfaya Dön
-          </Link>
-        </CardFooter>
       </Card>
     </motion.div>
   );
