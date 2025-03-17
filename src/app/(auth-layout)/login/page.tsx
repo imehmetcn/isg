@@ -70,20 +70,19 @@ export default function LoginPage() {
       transition={{ duration: 0.5 }}
       className="w-full max-w-md px-4"
     >
-      <Card className="overflow-hidden border-0 shadow-2xl bg-gradient-to-br from-gray-900 to-black rounded-xl">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-xl"></div>
+      <Card className="overflow-hidden border shadow-md rounded-xl bg-white">
         
         <CardHeader className="relative z-10 space-y-1 pb-6 pt-8">
           <motion.div 
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="mx-auto mb-4 h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-3 shadow-lg"
+            className="mx-auto mb-4 h-16 w-16 rounded-full bg-blue-500 p-3 shadow-lg"
           >
             <LogIn className="h-full w-full text-white" />
           </motion.div>
-          <CardTitle className="text-2xl font-bold text-center text-white">Giriş Yap</CardTitle>
-          <CardDescription className="text-center text-gray-400">
+          <CardTitle className="text-2xl font-bold text-center text-gray-800">Giriş Yap</CardTitle>
+          <CardDescription className="text-center text-gray-500">
             İş Güvenliği Yönetim Sistemine hoş geldiniz
           </CardDescription>
         </CardHeader>
@@ -92,8 +91,8 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <div className="flex items-center">
-                <AtSign className="mr-2 h-4 w-4 text-gray-400" />
-                <label htmlFor="email" className="text-sm font-medium text-gray-300">
+                <AtSign className="mr-2 h-4 w-4 text-gray-500" />
+                <label htmlFor="email" className="text-sm font-medium text-gray-700">
                   Email
                 </label>
               </div>
@@ -104,7 +103,7 @@ export default function LoginPage() {
                   type="email"
                   placeholder="ornek@sirket.com"
                   required
-                  className="bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 pl-3 pr-3 py-2 rounded-lg transition-all duration-200"
+                  className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 pl-3 pr-3 py-2 rounded-lg transition-all duration-200"
                   autoComplete="email"
                 />
               </div>
@@ -112,8 +111,8 @@ export default function LoginPage() {
             
             <div className="space-y-2">
               <div className="flex items-center">
-                <Lock className="mr-2 h-4 w-4 text-gray-400" />
-                <label htmlFor="password" className="text-sm font-medium text-gray-300">
+                <Lock className="mr-2 h-4 w-4 text-gray-500" />
+                <label htmlFor="password" className="text-sm font-medium text-gray-700">
                   Şifre
                 </label>
               </div>
@@ -123,7 +122,7 @@ export default function LoginPage() {
                   name="password"
                   type="password"
                   required
-                  className="bg-gray-800/50 border-gray-700 text-white focus:border-blue-500 focus:ring-blue-500 pl-3 pr-3 py-2 rounded-lg transition-all duration-200"
+                  className="bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-blue-500 pl-3 pr-3 py-2 rounded-lg transition-all duration-200"
                   autoComplete="current-password"
                 />
               </div>
@@ -133,7 +132,7 @@ export default function LoginPage() {
               <motion.div 
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-red-400 text-sm text-center bg-red-500/10 py-2 px-3 rounded-md border border-red-500/20"
+                className="text-red-600 text-sm text-center bg-red-50 py-2 px-3 rounded-md border border-red-200"
               >
                 {error}
               </motion.div>
@@ -141,7 +140,7 @@ export default function LoginPage() {
             
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-2.5 rounded-lg shadow-lg hover:shadow-blue-500/20 transition-all duration-200 flex items-center justify-center"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center"
               disabled={isLoading}
             >
               {isLoading ? (
