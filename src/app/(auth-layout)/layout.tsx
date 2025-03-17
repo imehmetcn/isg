@@ -16,12 +16,11 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
+    <div className="h-screen bg-white flex items-center justify-center">
       <ThemeProvider
         attribute="class"
-        defaultTheme="dark"
-        enableSystem={false}
-        disableTransitionOnChange
+        defaultTheme="light"
+        forcedTheme="light"
       >
         {children}
       </ThemeProvider>
