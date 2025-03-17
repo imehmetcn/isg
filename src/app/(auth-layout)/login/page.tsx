@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,9 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { AtSign, Lock, LogIn, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
-  
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -25,19 +23,20 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // Doğrudan yönlendirme ile giriş yap
       const result = await signIn("credentials", {
         email,
         password,
-        callbackUrl: callbackUrl,
-        redirect: true,
+        redirect: false,
       });
-      
-      // Bu kısım sadece redirect: false olduğunda çalışır
+
       if (result?.error) {
         setError("Geçersiz email veya şifre");
         setIsLoading(false);
+        return;
       }
+
+      // Başarılı giriş sonrası doğrudan dashboard'a yönlendir
+      window.location.href = "/dashboard";
     } catch (error) {
       setError("Bir hata oluştu. Lütfen tekrar deneyin.");
       setIsLoading(false);

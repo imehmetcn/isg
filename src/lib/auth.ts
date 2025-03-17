@@ -100,36 +100,6 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    async redirect({ url, baseUrl }) {
-      // URL'i decode et
-      const decodedUrl = decodeURIComponent(url);
-
-      // Callback URL'i kontrol et
-      if (decodedUrl.includes('callbackUrl')) {
-        try {
-          const urlObj = new URL(decodedUrl);
-          const callback = urlObj.searchParams.get('callbackUrl');
-          if (callback) {
-            return `${baseUrl}${callback}`;
-          }
-        } catch (e) {
-          console.error('URL parsing error:', e);
-        }
-      }
-
-      // Eğer URL bir path ise
-      if (decodedUrl.startsWith('/')) {
-        return `${baseUrl}${decodedUrl}`;
-      }
-
-      // Eğer URL aynı origin'den geliyorsa
-      if (decodedUrl.startsWith(baseUrl)) {
-        return decodedUrl;
-      }
-
-      // Varsayılan olarak dashboard'a yönlendir
-      return `${baseUrl}/dashboard`;
-    },
   },
   debug: process.env.NODE_ENV === 'development',
 } 
