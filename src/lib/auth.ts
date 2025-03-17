@@ -49,10 +49,9 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials, req) {
         try {
           if (!credentials?.email || !credentials?.password) {
-            return null;
+            throw new Error("Email ve şifre gerekli");
           }
 
-          // Kullanıcıyı basit sorgu ile bul
           const user = await db.user.findUnique({
             where: {
               email: credentials.email,
@@ -60,7 +59,7 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (!user || !user.password) {
-            return null;
+            throw new Error("Kullanıcı bulunamadı");
           }
 
           const isPasswordValid = await bcrypt.compare(
@@ -69,13 +68,13 @@ export const authOptions: NextAuthOptions = {
           );
 
           if (!isPasswordValid) {
-            return null;
+            throw new Error("Geçersiz şifre");
           }
 
           return {
             id: user.id,
-            email: user.email || "",
-            name: user.name || "User",
+            email: user.email,
+            name: user.name,
             role: user.role,
             companyId: null,
           };
@@ -100,6 +99,14 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      // Eğer URL aynı origin'den geliyorsa, olduğu gibi kullan
+      if (url.startsWith(baseUrl)) return url;
+      // Eğer URL bir path ise (/ ile başlıyorsa), baseUrl ile birleştir
+      else if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Diğer durumda dashboard'a yönlendir
+      return `${baseUrl}/dashboard`;
     },
   },
   debug: process.env.NODE_ENV === 'development',

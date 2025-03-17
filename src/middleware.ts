@@ -6,21 +6,26 @@ export default withAuth(
   function middleware(req: NextRequestWithAuth) {
     // Public paths that don't require authentication
     const publicPaths = ["/login", "/register", "/forgot-password"];
+    
+    // Eğer public path'te isek ve kullanıcı giriş yapmışsa
+    if (publicPaths.includes(req.nextUrl.pathname) && req.nextauth.token) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+
+    // Eğer public path'te isek ve kullanıcı giriş yapmamışsa
     if (publicPaths.includes(req.nextUrl.pathname)) {
-      // Eğer kullanıcı giriş yapmışsa ve login sayfasına erişmeye çalışıyorsa
-      if (req.nextauth.token && req.nextUrl.pathname === "/login") {
-        return NextResponse.redirect(new URL("/dashboard", req.url));
-      }
       return NextResponse.next();
     }
 
-    // Ana sayfa kontrolü - token yoksa login'e yönlendir
-    if (req.nextUrl.pathname === "/" && !req.nextauth.token) {
-      return NextResponse.redirect(new URL("/login", req.url));
+    // Kullanıcı giriş yapmamışsa ve korumalı bir sayfaya erişmeye çalışıyorsa
+    if (!req.nextauth.token) {
+      const loginUrl = new URL("/login", req.url);
+      loginUrl.searchParams.set("callbackUrl", req.nextUrl.pathname);
+      return NextResponse.redirect(loginUrl);
     }
 
-    // Kullanıcı giriş yapmışsa ana sayfayı dashboard'a yönlendir
-    if (req.nextUrl.pathname === "/" && req.nextauth.token) {
+    // Ana sayfa kontrolü
+    if (req.nextUrl.pathname === "/") {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
@@ -36,15 +41,8 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token, req }) => {
-        // Public paths kontrolü
-        const publicPaths = ["/login", "/register", "/forgot-password"];
-        if (publicPaths.includes(req.nextUrl.pathname)) {
-          return true;
-        }
-        
-        // Token varsa erişime izin ver
-        return !!token;
+      authorized: ({ token }) => {
+        return true; // Authorization'ı middleware function'da handle ediyoruz
       },
     },
     pages: {
