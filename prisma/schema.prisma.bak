@@ -1,0 +1,172 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["extendedWhereUnique", "filteredRelationCount", "fullTextSearch"]
+}
+
+datasource db {
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  directUrl    = env("DIRECT_URL")
+  relationMode = "prisma"
+}
+
+model Account {
+  id                String  @id
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  @@unique([provider, providerAccountId])
+}
+
+model Company {
+  id        String   @id
+  name      String
+  address   String?
+  phone     String?
+  email     String?
+  website   String?
+  logo      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model CompanyUser {
+  id        String   @id
+  userId    String
+  companyId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+
+  @@unique([userId, companyId])
+}
+
+model EmergencyPlan {
+  id         String   @id
+  title      String
+  date       DateTime
+  procedures String[]
+  contacts   String[]
+  status     Status   @default(DRAFT)
+  companyId  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+}
+
+model Hazard {
+  id               String    @id
+  description      String
+  riskLevel        RiskLevel
+  controlMeasures  String
+  deadline         DateTime?
+  completed        Boolean   @default(false)
+  riskAssessmentId String
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime
+}
+
+model Incident {
+  id          String       @id
+  type        IncidentType
+  date        DateTime
+  location    String
+  description String
+  actions     String?
+  status      Status       @default(OPEN)
+  companyId   String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime
+}
+
+model Inspection {
+  id        String   @id
+  type      String
+  date      DateTime
+  location  String
+  findings  String[]
+  status    Status   @default(OPEN)
+  companyId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model RiskAssessment {
+  id         String   @id
+  title      String
+  date       DateTime
+  department String
+  status     Status   @default(DRAFT)
+  companyId  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+}
+
+model Session {
+  id           String   @id
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+}
+
+model Training {
+  id        String   @id
+  title     String
+  date      DateTime
+  trainer   String
+  attendees String[]
+  topics    String[]
+  duration  Int
+  status    Status   @default(PLANNED)
+  companyId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model User {
+  id            String    @id
+  name          String?
+  email         String    @unique
+  password      String
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime
+  companyId     String?
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum IncidentType {
+  ACCIDENT
+  NEAR_MISS
+  HAZARD_REPORT
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum Status {
+  DRAFT
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  PLANNED
+  CANCELLED
+}
