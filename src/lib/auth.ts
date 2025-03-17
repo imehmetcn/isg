@@ -36,6 +36,13 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 gün
   },
+  pages: {
+    signIn: "/dashboard", // Login sayfası yerine doğrudan dashboard'a yönlendir
+    signOut: "/dashboard",
+    error: "/dashboard",
+    verifyRequest: "/dashboard",
+    newUser: "/dashboard"
+  },
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -44,64 +51,13 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials, req) {
-        try {
-          if (!credentials?.email || !credentials?.password) {
-            // Kimlik bilgileri yoksa bile giriş yapılmış gibi davran
-            return {
-              id: "guest",
-              email: "guest@example.com",
-              name: "Misafir Kullanıcı",
-              role: "VIEWER" as Role,
-            };
-          }
-
-          const user = await db.user.findUnique({
-            where: {
-              email: credentials.email,
-            }
-          });
-
-          if (!user || !user.password) {
-            // Kullanıcı bulunamasa bile giriş yapılmış gibi davran
-            return {
-              id: "guest",
-              email: "guest@example.com",
-              name: "Misafir Kullanıcı",
-              role: "VIEWER" as Role,
-            };
-          }
-
-          const isPasswordValid = await bcrypt.compare(
-            credentials.password,
-            user.password
-          );
-
-          if (!isPasswordValid) {
-            // Şifre geçersiz olsa bile giriş yapılmış gibi davran
-            return {
-              id: "guest",
-              email: "guest@example.com",
-              name: "Misafir Kullanıcı",
-              role: "VIEWER" as Role,
-            };
-          }
-
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-          };
-        } catch (error) {
-          console.error("Auth error:", error);
-          // Hata olsa bile giriş yapılmış gibi davran
-          return {
-            id: "guest",
-            email: "guest@example.com",
-            name: "Misafir Kullanıcı",
-            role: "VIEWER" as Role,
-          };
-        }
+        // Her durumda otomatik giriş yap
+        return {
+          id: "guest",
+          email: "guest@example.com",
+          name: "Misafir Kullanıcı",
+          role: "VIEWER" as Role,
+        };
       },
     }),
   ],

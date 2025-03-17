@@ -1,30 +1,20 @@
-import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
-import type { NextRequestWithAuth } from "next-auth/middleware";
+import type { NextRequest } from "next/server";
 
-export default withAuth(
-  function middleware(req: NextRequestWithAuth) {
-    // Her durumda dashboard'a yönlendir
-    if (req.nextUrl.pathname === "/") {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
-    }
-
-    // Kullanıcı giriş yapmışsa ve login sayfasına erişmeye çalışıyorsa
-    if (req.nextUrl.pathname === "/login" && req.nextauth.token) {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
-    }
-
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => {
-        // Her zaman yetkili olarak kabul et
-        return true;
-      },
-    },
+export function middleware(req: NextRequest) {
+  // Login sayfasına gelen tüm istekleri dashboard'a yönlendir
+  if (req.nextUrl.pathname === "/login") {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
-);
+
+  // Ana sayfaya gelen tüm istekleri dashboard'a yönlendir
+  if (req.nextUrl.pathname === "/") {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
+  // Diğer tüm isteklere izin ver
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [
