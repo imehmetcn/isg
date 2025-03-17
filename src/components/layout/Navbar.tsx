@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronDown, LogOut, LogIn } from 'lucide-react';
+import { useSession, signOut } from 'next-auth/react';
 
 const navigation = [
   { name: 'Ana Sayfa', href: '/' },
@@ -22,11 +23,16 @@ const navigation = [
 ];
 
 export const Navbar = () => {
+  const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   const toggleDropdown = (name: string) => {
     setOpenDropdown(openDropdown === name ? null : name);
+  };
+
+  const handleSignOut = () => {
+    signOut({ callbackUrl: '/' });
   };
 
   return (
@@ -83,12 +89,23 @@ export const Navbar = () => {
           </div>
           
           <div className="hidden md:ml-6 md:flex md:items-center">
-            <Link
-              href="/giris"
-              className="ml-8 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-            >
-              Giriş Yap
-            </Link>
+            {status === 'authenticated' ? (
+              <button
+                onClick={handleSignOut}
+                className="ml-8 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Çıkış Yap
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="ml-8 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+              >
+                <LogIn className="mr-2 h-4 w-4" />
+                Giriş Yap
+              </Link>
+            )}
           </div>
           
           {/* Mobile menu button */}
@@ -151,12 +168,23 @@ export const Navbar = () => {
           </div>
           <div className="pt-4 pb-3 border-t border-gray-200">
             <div className="flex items-center px-4">
-              <Link
-                href="/giris"
-                className="w-full flex justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700"
-              >
-                Giriş Yap
-              </Link>
+              {status === 'authenticated' ? (
+                <button
+                  onClick={handleSignOut}
+                  className="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-600 hover:bg-red-700"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Çıkış Yap
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  className="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700"
+                >
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Giriş Yap
+                </Link>
+              )}
             </div>
           </div>
         </div>
