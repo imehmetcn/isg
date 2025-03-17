@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { AtSign, Lock, LogIn, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -35,8 +36,9 @@ export default function LoginPage() {
         return;
       }
 
-      // Başarılı giriş sonrası doğrudan dashboard'a yönlendir
-      window.location.href = "/dashboard";
+      // Başarılı giriş sonrası yönlendirme
+      const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+      router.push(callbackUrl);
     } catch (error) {
       setError("Bir hata oluştu. Lütfen tekrar deneyin.");
       setIsLoading(false);

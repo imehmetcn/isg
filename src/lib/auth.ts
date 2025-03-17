@@ -76,7 +76,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.name,
             role: user.role,
-            companyId: null,
+            companyId: user.companyId,
           };
         } catch (error) {
           console.error("Auth error:", error);
@@ -99,6 +99,14 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      // Eğer URL dashboard'a yönlendiriyorsa veya callbackUrl dashboard ise
+      if (url.includes('/dashboard') || url === baseUrl) {
+        return `${baseUrl}/dashboard`;
+      }
+      // Diğer durumlarda dashboard'a yönlendir
+      return `${baseUrl}/dashboard`;
     },
   },
   debug: process.env.NODE_ENV === 'development',
