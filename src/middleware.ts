@@ -7,6 +7,10 @@ export default withAuth(
     // Public paths that don't require authentication
     const publicPaths = ["/login", "/register", "/forgot-password"];
     if (publicPaths.includes(req.nextUrl.pathname)) {
+      // Eğer kullanıcı giriş yapmışsa ve login sayfasına erişmeye çalışıyorsa
+      if (req.nextauth.token && req.nextUrl.pathname === "/login") {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
       return NextResponse.next();
     }
 
@@ -15,12 +19,17 @@ export default withAuth(
       return NextResponse.redirect(new URL("/login", req.url));
     }
 
+    // Kullanıcı giriş yapmışsa ana sayfayı dashboard'a yönlendir
+    if (req.nextUrl.pathname === "/" && req.nextauth.token) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+
     // Admin sayfaları kontrolü
     if (
       req.nextUrl.pathname.startsWith("/admin") &&
       req.nextauth?.token?.role !== "ADMIN"
     ) {
-      return NextResponse.redirect(new URL("/", req.url));
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
     return NextResponse.next();

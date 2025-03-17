@@ -35,8 +35,11 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/dashboard");
-      router.refresh();
+      // Başarılı giriş sonrası yönlendirme
+      if (result?.ok) {
+        router.push("/dashboard");
+        router.refresh();
+      }
     } catch (error) {
       setError("Bir hata oluştu. Lütfen tekrar deneyin.");
       setIsLoading(false);

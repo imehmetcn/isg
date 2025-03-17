@@ -1,0 +1,1 @@
+SELECT * FROM users WHERE email = 'admin@isg.com'; 
