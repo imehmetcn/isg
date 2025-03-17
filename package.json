@@ -23,15 +23,8 @@
     "@radix-ui/react-tabs": "^1.1.3",
     "@radix-ui/react-toast": "^1.1.5",
     "@tanstack/react-table": "^8.11.0",
-<<<<<<< HEAD
     "@uploadthing/react": "^7.3.0",
     "@vercel/analytics": "^1.5.0",
-=======
-    "@types/bcrypt": "^5.0.2",
-    "@uploadthing/react": "^7.3.0",
-    "@vercel/analytics": "^1.5.0",
-    "bcrypt": "^5.1.1",
->>>>>>> 0decb0c537f58e77861223d3fe5b611c379975d2
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
@@ -44,13 +37,8 @@
     "next": "14.1.1",
     "next-auth": "^4.24.6",
     "next-themes": "^0.2.1",
-<<<<<<< HEAD
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-=======
-    "react": "^18",
-    "react-dom": "^18",
->>>>>>> 0decb0c537f58e77861223d3fe5b611c379975d2
     "react-hook-form": "^7.50.0",
     "sonner": "^2.0.1",
     "tailwind-merge": "^2.2.1",
@@ -64,13 +52,8 @@
     "@eslint/object-schema": "^2.1.6",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
-<<<<<<< HEAD
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-=======
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
->>>>>>> 0decb0c537f58e77861223d3fe5b611c379975d2
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.1.1",
