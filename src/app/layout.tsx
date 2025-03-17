@@ -42,8 +42,7 @@ export default async function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
+          forcedTheme="light"
         >
           <SessionProvider session={session}>
             <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
